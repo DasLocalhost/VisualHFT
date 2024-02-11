@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Packaging;
 using System.Linq;
+using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
@@ -22,9 +23,10 @@ namespace VisualHFT.Studies
 
 
         // Event declaration
-        public override event EventHandler<decimal> OnAlertTriggered;
+        //public override event EventHandler<decimal> OnAlertTriggered;
         public override event EventHandler<BaseStudyModel> OnCalculated;
         public override event EventHandler<ErrorEventArgs> OnError;
+        public override event EventHandler<INotification> OnNotificationRaised;
 
         public override string Name { get; set; } = "Market Resiliecence Bias Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -127,24 +129,19 @@ namespace VisualHFT.Studies
         }
         public override object GetUISettings()
         {
-            PluginSettingsView view = new PluginSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(CloseSettingWindow);
-            viewModel.SelectedSymbol = _settings.Symbol;
-            viewModel.SelectedProviderID = _settings.Provider.ProviderID;
-            viewModel.AggregationLevelSelection = _settings.AggregationLevel;
+            PluginCompactSettingsView view = new PluginCompactSettingsView();
+            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
+            //viewModel.SelectedSymbol = _settings.Symbol;
+            //viewModel.SelectedProviderID = _settings.Provider.ProviderID;
+            //viewModel.AggregationLevelSelection = _settings.AggregationLevel;
 
             viewModel.UpdateSettingsFromUI = () =>
             {
-                _settings.Symbol = viewModel.SelectedSymbol;
-                _settings.Provider = viewModel.SelectedProvider;
-                _settings.AggregationLevel = viewModel.AggregationLevelSelection;
+                //_settings.Symbol = viewModel.SelectedSymbol;
+                //_settings.Provider = viewModel.SelectedProvider;
+                //_settings.AggregationLevel = viewModel.AggregationLevelSelection;
 
-                SaveSettings();
-
-                //reset 
-                _MARKETRESILIENCE.Settings = _settings;
-                _MARKETRESILIENCE.ResetPreTradeState();
-
+                //SaveSettings();
             };
             // Display the view, perhaps in a dialog or a new window.
             view.DataContext = viewModel;

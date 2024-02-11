@@ -3,27 +3,73 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:MarketConnectors.WebSocket.UserControls"
-             mc:Ignorable="d" >
-    <Grid Margin="10">
-        <StackPanel>
-            <Label Content="Provider ID" Margin="0,0"/>
-            <TextBox Text="{Binding ProviderId, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
+             mc:Ignorable="d"
+             
+             d:Background="White"
+             
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{StaticResource MaterialDesignFont}"
+             
+             d:DesignHeight="480" d:DesignWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock Text="{Binding Header}" d:Text="Test Header Web Socket" FontWeight="Bold" Margin="5" FontSize="15" />
 
-            <Label Content="Provider Name"/>
-            <TextBox Text="{Binding ProviderName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
+        <Border Grid.Row="1" BorderBrush="White" BorderThickness="0 0 0 1" Margin="5 0 30 0" />
 
-            <Label Content="Hostname" Margin="0,20,0,0"/>
-            <TextBox Text="{Binding HostName, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
+        <StackPanel Grid.Row="2" Margin="20 10 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
 
-            <Label Content="Port" Margin="0,20,0,0"/>
-            <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />
+                <TextBlock Text="Provider ID" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding ProviderId, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                             VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
-                <Label Content="{Binding ValidationMessage}" Foreground="Red" HorizontalAlignment="Left" Margin="0 0 20 0" />
-                <Button Content="OK" Command="{Binding OkCommand}" Margin="0,0,5,0" Width="80" />
-                <Button Content="Cancel" Command="{Binding CancelCommand}" Width="80" />
-            </StackPanel>
+            <Grid Margin="0 5 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Provider Name" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding ProviderName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="100"
+                             VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
+
+            <Grid Margin="0 5 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Hostname" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding Hostname, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="100"
+                             VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
+
+            <Grid Margin="0 5 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Port" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding Port, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="100"
+                             VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

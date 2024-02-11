@@ -169,19 +169,15 @@ namespace MarketConnectors.WebSocket
         }
         public override object GetUISettings()
         {
-            PluginSettingsView view = new PluginSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(CloseSettingWindow);
-            viewModel.HostName = _settings.HostName;
-            viewModel.Port = _settings.Port;
-            viewModel.ProviderId = _settings.ProviderId;
-            viewModel.ProviderName = _settings.ProviderName;
+            PluginCompactSettingsView view = new PluginCompactSettingsView();
+            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
             viewModel.UpdateSettingsFromUI = () =>
             {
-                _settings.HostName = viewModel.HostName;
-                _settings.Port = viewModel.Port;
-                _settings.ProviderId = viewModel.ProviderId;
-                _settings.ProviderName = viewModel.ProviderName;
-                SaveSettings();
+                //_settings.HostName = viewModel.HostName;
+                //_settings.Port = viewModel.Port;
+                //_settings.ProviderId = viewModel.ProviderId;
+                //_settings.ProviderName = viewModel.ProviderName;
+                //SaveSettings();
 
                 // Start the HandleConnectionLost task without awaiting it
                 //run this because it will allow to reconnect with the new values

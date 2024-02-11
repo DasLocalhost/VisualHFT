@@ -1,41 +1,82 @@
-﻿using System;
+﻿using log4net.Plugin;
+using NetMQ.Sockets;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using VisualHFT.Commons.NotificationManager;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.Commons.Studies;
 using VisualHFT.DataRetriever;
+using VisualHFT.UserSettings;
+using VisualHFT.ViewModel;
 
 namespace VisualHFT.PluginManager
 {
-    public static class PluginManager
+    public class PluginManager : IPluginManager
     {
-        private static List<IPlugin> ALL_PLUGINS = new List<IPlugin>();
-        private static object _locker = new object();
+        #region Fields
+
+        private List<IPlugin> ALL_PLUGINS = new List<IPlugin>();
+        private object _locker = new object();
+
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static void LoadPlugins()
+        #endregion
+
+        #region Properties
+
+        public List<IPlugin> AllPlugins { get { lock (_locker) return ALL_PLUGINS; } }
+        public bool AllPluginsReloaded { get; internal set; }
+
+        #endregion
+
+        public static PluginManager? Instance { get; private set; } = null;
+
+        public static void Init()
+        {
+            try
+            {
+                // TODO : replace with custom exception
+                if (Instance != null)
+                    throw new Exception();
+
+                Instance = new PluginManager();
+
+                Instance.AllPluginsReloaded = false;
+                Instance.LoadPlugins();
+                Instance.StartPlugins();
+                Instance.AllPluginsReloaded = true;
+            }
+            catch (Exception ex)
+            {
+                // TODO : add logs here
+            }
+        }
+
+        public void LoadPlugins()
         {
             // 1. By default load all dll's in current Folder. 
             var pluginsDirectory = AppDomain.CurrentDomain.BaseDirectory; // This gets the directory where your WPF app is running
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                lock (_locker)
-                    LoadPluginsByDirectory(pluginsDirectory);
-            });
+            lock (_locker)
+                LoadPluginsByDirectory(pluginsDirectory);
 
             // 3. Load Other Plugins in different folders
 
             // 4. If is Started, then Start
 
             // 5. If empty or Stopped. Do nothing.
-        }
-        public static List<IPlugin> AllPlugins { get { lock (_locker) return ALL_PLUGINS; } }
-        public static bool AllPluginsReloaded { get; internal set; }
 
-        public static void StartPlugins()
+        }
+
+        public void StartPlugins()
         {
             lock (_locker)
             {
@@ -60,7 +101,7 @@ namespace VisualHFT.PluginManager
             }
         }
 
-        public static void StartPlugin(IPlugin plugin)
+        public void StartPlugin(IPlugin plugin)
         {
             try
             {
@@ -83,7 +124,7 @@ namespace VisualHFT.PluginManager
                 throw;
             }
         }
-        public static void StopPlugin(IPlugin plugin)
+        public void StopPlugin(IPlugin plugin)
         {
             try
             {
@@ -100,7 +141,8 @@ namespace VisualHFT.PluginManager
                 throw;
             }
         }
-        public static void SettingPlugin(IPlugin plugin)
+
+        public void SettingPlugin(IPlugin plugin)
         {
             UserControl _ucSettings = null;
             try
@@ -108,7 +150,8 @@ namespace VisualHFT.PluginManager
                 if (plugin != null)
                 {
                     var formSettings = new View.PluginSettings();
-                    plugin.CloseSettingWindow = () => {
+                    plugin.CloseSettingWindow = () =>
+                    {
                         formSettings.Close();
                     };
 
@@ -135,7 +178,7 @@ namespace VisualHFT.PluginManager
             }
         }
 
-        public static void UnloadPlugins()
+        public void UnloadPlugins()
         {
             lock (_locker)
             {
@@ -147,8 +190,7 @@ namespace VisualHFT.PluginManager
             }
         }
 
-
-        private static void LoadPluginsByDirectory(string pluginsDirectory)
+        private void LoadPluginsByDirectory(string pluginsDirectory)
         {
             foreach (var file in Directory.GetFiles(pluginsDirectory, "*.dll"))
             {
@@ -162,6 +204,7 @@ namespace VisualHFT.PluginManager
                             var plugin = Activator.CreateInstance(type) as IPlugin;
                             if (string.IsNullOrEmpty(plugin.Name))
                                 continue;
+
                             ALL_PLUGINS.Add(plugin);
                             plugin.OnError += Plugin_OnError;
                             log.Info("Plugins: " + plugin.Name + " loaded OK.");
@@ -174,11 +217,10 @@ namespace VisualHFT.PluginManager
                     log.Error(ex);
                     throw new Exception($"Plugin {file} has failed to load. Error: " + ex.Message);
                 }
-
             }
-
         }
-        private static void Plugin_OnError(object? sender, ErrorEventArgs e)
+
+        private void Plugin_OnError(object? sender, ErrorEventArgs e)
         {
             if (e.IsCritical)
             {
@@ -190,8 +232,6 @@ namespace VisualHFT.PluginManager
                 //LOG error
                 log.Error(e.PluginName, e.Exception);
             }
-
         }
-
     }
 }

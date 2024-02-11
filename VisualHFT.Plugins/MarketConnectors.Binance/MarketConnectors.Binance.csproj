@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<ProjectReference Include="..\..\VisualHFT.Commons.WPF\VisualHFT.Commons.WPF.csproj" />
     <ProjectReference Include="..\..\VisualHFT.Commons\VisualHFT.Commons.csproj" />
   </ItemGroup>
 

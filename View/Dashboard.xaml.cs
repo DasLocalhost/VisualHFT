@@ -62,12 +62,7 @@ namespace VisualHFT
 
         private void ButtonAppSettings_Click(object sender, RoutedEventArgs e)
         {
-            var vm = new vmUserSettings();
-            vm.LoadJson(SettingsManager.Instance.GetAllSettings());
-
-            var form = new View.UserSettings();
-            form.DataContext = vm;
-            form.ShowDialog();
+            SettingsManager.Instance.ShowMainSettings();
         }
 
         private void ButtonMultiVenuePrices_Click(object sender, RoutedEventArgs e)

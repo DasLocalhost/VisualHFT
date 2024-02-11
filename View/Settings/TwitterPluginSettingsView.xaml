@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="VisualHFT.View.Settings.TwitterPluginSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal" 
+             TextOptions.TextRenderingMode="Auto"        
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{StaticResource MaterialDesignFont}"   
+             
+             d:DesignHeight="480" d:DesignWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <CheckBox x:Name="chbxEnabled" Content="{Binding Header}" IsChecked="{Binding IsEnabled}" FontWeight="Bold" Margin="5" FontSize="15"
+                  d:Content="Twitter Notifications" d:IsChecked="True" />
+
+        <Border Grid.Row="1" BorderBrush="White" BorderThickness="0 0 0 1" Margin="5 0 30 0" />
+
+        <StackPanel Grid.Row="2" Visibility="{Binding IsChecked, ElementName=chbxEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="20 10 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="API Token" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding ApiToken, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="API Secret" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding ApiSecret, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
+            <Grid>
+                <Button Command="{Binding Auth1Command}" Margin="5" Width="150" HorizontalAlignment="Right" Content="Log In" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="OAuth Token" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding OAuthToken, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" IsReadOnly="True" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="OAuth Secret" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding OAuthSecret, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" IsReadOnly="True" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="PIN" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding AuthVerifier, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
+            <Grid>
+                <Button Command="{Binding Auth2Command}" Margin="5" Width="150" HorizontalAlignment="Right" Content="Log In" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Access Token" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding AccessToken, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" IsReadOnly="True" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Access Token Secret" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <TextBox Grid.Column="1" Text="{Binding AccessSecret, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" IsReadOnly="True" />
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -6,118 +6,22 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using VisualHFT.Studies.LOBImbalance.Model;
+using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.Helpers;
 using VisualHFT.ViewModel.Model;
+using VisualHFT.UserSettings;
 
 namespace VisualHFT.Studies.LOBImbalance.ViewModel
 {
-    public class PluginSettingsViewModel : INotifyPropertyChanged, IDataErrorInfo
+    public class PluginSettingsViewModel : BaseSettingsViewModel
     {
-        private ObservableCollection<Provider> _providers;
-        private ObservableCollection<string> _symbols;
-        private VisualHFT.ViewModel.Model.Provider _selectedProvider;
-        private int? _selectedProviderID;
-        private string _selectedSymbol;
-        private AggregationLevel _aggregationLevelSelection;
+        private const string _defaultHeader = "LOB PlugIn Settings";
 
+        #region IDataErrorInfo implementation
 
-        private string _validationMessage;
-        private string _successMessage;
-        private Action _actionCloseWindow;
-        public ICommand OkCommand { get; private set; }
-        public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
-
-        public PluginSettingsViewModel(Action actionCloseWindow)
-        {
-            OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
-            CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
-            _actionCloseWindow = actionCloseWindow;
-
-            _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
-            _providers = Provider.CreateObservableCollection();
-            OnPropertyChanged(nameof(Providers));
-            OnPropertyChanged(nameof(Symbols));
-
-            HelperProvider.Instance.OnDataReceived += PROVIDERS_OnDataReceived;
-            HelperSymbol.Instance.OnCollectionChanged += ALLSYMBOLS_CollectionChanged;
-
-
-            AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
-            foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
-            {
-                AggregationLevels.Add(new Tuple<string, AggregationLevel>(HelperCommon.GetEnumDescription(level), level));
-            }
-            AggregationLevelSelection = AggregationLevel.Automatic;
-
-
-            LoadSelectedProviderID();
-        }
-
-
-        public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; }
-        public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
-
-        public int? SelectedProviderID
-        {
-            get { return _selectedProviderID;  }
-            set
-            {
-                _selectedProviderID = value;
-                OnPropertyChanged(nameof(SelectedProviderID));
-                RaiseCanExecuteChanged();
-                LoadSelectedProviderID();
-            }
-        }
-        public VisualHFT.ViewModel.Model.Provider SelectedProvider
-        {
-            get => _selectedProvider;
-            set
-            {
-                _selectedProvider = value;
-                OnPropertyChanged(nameof(SelectedProvider));
-                RaiseCanExecuteChanged();
-                LoadSelectedProviderID();
-            }
-        }
-        public string SelectedSymbol
-        {
-            get => _selectedSymbol;
-            set
-            {
-                _selectedSymbol = value;
-                RaiseCanExecuteChanged();
-                OnPropertyChanged(nameof(SelectedSymbol));
-            }
-        }
-
-        public AggregationLevel AggregationLevelSelection
-        {
-            get => _aggregationLevelSelection;
-            set
-            {
-                _aggregationLevelSelection = value;
-                RaiseCanExecuteChanged();
-                OnPropertyChanged(nameof(AggregationLevelSelection));
-            }
-        }
-        public ObservableCollection<Tuple<string, AggregationLevel>> AggregationLevels { get; set; }
-
-
-        public string ValidationMessage
-        {
-            get { return _validationMessage; }
-            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage));}
-        }
-
-        public string SuccessMessage
-        {
-            get { return _successMessage; }
-            set { _successMessage = value; OnPropertyChanged(nameof(SuccessMessage)); }
-        }
-        public string Error => null;
-
-        public string this[string columnName]
+        public override string Error => null;
+        public override string this[string columnName]
         {
             get
             {
@@ -139,8 +43,128 @@ namespace VisualHFT.Studies.LOBImbalance.ViewModel
             }
         }
 
+        #endregion
+
+        #region Fields
+
+        private ObservableCollection<Provider> _providers;
+        private ObservableCollection<string> _symbols;
+        private VisualHFT.ViewModel.Model.Provider _selectedProvider;
+        private int? _selectedProviderID;
+        private string _selectedSymbol;
+        private AggregationLevel _aggregationLevelSelection;
+
+        private string _validationMessage;
+        private string _successMessage;
+        private Action _actionCloseWindow;
+
+        #endregion
+
+        #region Properties
+
+        public ObservableCollection<VisualHFT.ViewModel.Model.Provider> Providers { get => _providers; set => _providers = value; }
+        public ObservableCollection<string> Symbols { get => _symbols; set => _symbols = value; }
+        public int? SelectedProviderID
+        {
+            get { return _selectedProviderID; }
+            set
+            {
+                _selectedProviderID = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+                LoadSelectedProviderID();
+            }
+        }
+        public VisualHFT.ViewModel.Model.Provider SelectedProvider
+        {
+            get => _selectedProvider;
+            set
+            {
+                _selectedProvider = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+                LoadSelectedProviderID();
+            }
+        }
+        public string SelectedSymbol
+        {
+            get => _selectedSymbol;
+            set
+            {
+                _selectedSymbol = value;
+                RaiseCanExecuteChanged();
+                RaisePropertyChanged();
+            }
+        }
+
+        public AggregationLevel AggregationLevelSelection
+        {
+            get => _aggregationLevelSelection;
+            set
+            {
+                _aggregationLevelSelection = value;
+                RaiseCanExecuteChanged();
+                RaisePropertyChanged(raiseSettingsChanged: false);
+            }
+        }
+        public ObservableCollection<Tuple<string, AggregationLevel>> AggregationLevels { get; set; }
+
+
+        public string ValidationMessage
+        {
+            get { return _validationMessage; }
+            set { _validationMessage = value; RaisePropertyChanged(raiseSettingsChanged: false); }
+        }
+
+        public string SuccessMessage
+        {
+            get { return _successMessage; }
+            set { _successMessage = value; RaisePropertyChanged(raiseSettingsChanged: false); }
+        }
+
+        #endregion
+
+        public ICommand OkCommand { get; private set; }
+        public ICommand CancelCommand { get; private set; }
+        public Action UpdateSettingsFromUI { get; set; }
+
+        public PluginSettingsViewModel(PlugInSettings settings) : base(settings, _defaultHeader)
+        {
+            //OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
+            //CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
+            //_actionCloseWindow = actionCloseWindow;
+
+            _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
+            _providers = Provider.CreateObservableCollection();
+            //RaisePropertyChanged(nameof(Providers));
+            //RaisePropertyChanged(nameof(Symbols));
+
+            _selectedSymbol = settings.Symbol;
+            _selectedProviderID = settings.Provider.ProviderID;
+            _aggregationLevelSelection = settings.AggregationLevel;
+
+            HelperProvider.Instance.OnDataReceived += PROVIDERS_OnDataReceived;
+            HelperSymbol.Instance.OnCollectionChanged += ALLSYMBOLS_CollectionChanged;
+
+            AggregationLevels = new ObservableCollection<Tuple<string, AggregationLevel>>();
+            foreach (AggregationLevel level in Enum.GetValues(typeof(AggregationLevel)))
+            {
+                AggregationLevels.Add(new Tuple<string, AggregationLevel>(HelperCommon.GetEnumDescription(level), level));
+            }
+            //AggregationLevelSelection = AggregationLevel.Automatic;
+
+            LoadSelectedProviderID();
+        }
+
+        public override bool CheckIfValid()
+        {
+            // This checks if any validation message exists for any of the properties
+            return string.IsNullOrWhiteSpace(this[nameof(SelectedProvider)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(SelectedSymbol)]);
+        }
+
         private void ExecuteOkCommand(object obj)
-        {            
+        {
             SuccessMessage = "Settings saved successfully!";
             UpdateSettingsFromUI?.Invoke();
             _actionCloseWindow?.Invoke();
@@ -154,31 +178,37 @@ namespace VisualHFT.Studies.LOBImbalance.ViewModel
             // This checks if any validation message exists for any of the properties
             return string.IsNullOrWhiteSpace(this[nameof(SelectedProvider)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(SelectedSymbol)]);
-                   
+
         }
         private void RaiseCanExecuteChanged()
         {
             (OkCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
         }
+
+        /// <summary>
+        /// Load the selected provider and symbol based on selected provider ID.
+        /// </summary>
         private void LoadSelectedProviderID()
         {
             if (_selectedProvider != null)
             {
                 _selectedProviderID = _selectedProvider.ProviderID;
-                OnPropertyChanged(nameof(SelectedSymbol));
+                RaisePropertyChanged(nameof(SelectedSymbol));
             }
             else if (_selectedProviderID.HasValue && _providers.Any())
             {
                 _selectedProvider = _providers.FirstOrDefault(x => x.ProviderID == _selectedProviderID.Value);
-                OnPropertyChanged(nameof(SelectedProvider));
+                RaisePropertyChanged(nameof(SelectedProvider));
             }
         }
 
         private void ALLSYMBOLS_CollectionChanged(object? sender, EventArgs e)
         {
             _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
-            OnPropertyChanged(nameof(Symbols));
+            RaisePropertyChanged(nameof(Symbols));
         }
+
+        // TODO : change the approach. Provider list shouldn't be loaded this way to settings. It's rewriting what we have in file. 
         private void PROVIDERS_OnDataReceived(object? sender, VisualHFT.Model.Provider e)
         {
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
@@ -191,14 +221,20 @@ namespace VisualHFT.Studies.LOBImbalance.ViewModel
             }));
         }
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
+        public override void ApplyChanges()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            // TODO : logs / Exceptions here
+            if (_setting is not PlugInSettings castedSetting)
+                return;
+
+            if (SettingKey == null || SettingId == null)
+                return;
+
+            castedSetting.Symbol = SelectedSymbol;
+            castedSetting.Provider.ProviderID = SelectedProviderID ?? 0;
+            castedSetting.AggregationLevel = AggregationLevelSelection;
+
+            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
-
     }
-
 }

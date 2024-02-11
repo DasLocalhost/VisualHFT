@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 using VisualHFT.UserSettings;
+using MarketConnectors.WebSocket.ViewModel;
+using MarketConnectors.WebSocket.UserControls;
+using VisualHFT.Commons.WPF.ViewModel;
 
 namespace MarketConnectors.WebSocket.Model
 {
+    [DefaultSettingsView(typeof(PluginSettingsViewModel), typeof(PluginSettingsView))]
+    [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
         public required string HostName { get; set; }

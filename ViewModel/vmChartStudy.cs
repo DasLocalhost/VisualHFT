@@ -108,7 +108,7 @@ namespace VisualHFT.ViewModels
         }
         private void OpenSettings(object obj)
         {
-            PluginManager.PluginManager.SettingPlugin(_plugin);
+            PluginManager.PluginManager.Instance.SettingPlugin(_plugin);
             InitializeData();
 
 

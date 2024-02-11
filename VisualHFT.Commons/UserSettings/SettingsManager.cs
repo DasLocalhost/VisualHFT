@@ -1,10 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VisualHFT.UserSettings
 {
@@ -19,8 +13,6 @@ namespace VisualHFT.UserSettings
             // To save settings
             SettingsManager.Instance.SaveSettings();     
      */
-
-
     public class SettingsManager
     {
         private static readonly Lazy<SettingsManager> lazy = new Lazy<SettingsManager>(() => new SettingsManager());
@@ -28,10 +20,16 @@ namespace VisualHFT.UserSettings
         private string settingsFilePath;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+        };
+
+        public event EventHandler<IBaseSettings>? SettingsChanged;
 
         public static SettingsManager Instance => lazy.Value;
 
-        public UserSettings UserSettings { get; set; }
+        public UserSettings? UserSettings { get; set; }
 
         public string GetAllSettings()
         {
@@ -43,6 +41,7 @@ namespace VisualHFT.UserSettings
             else
                 return null;
         }
+
         private SettingsManager()
         {
             appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -57,13 +56,17 @@ namespace VisualHFT.UserSettings
             if (File.Exists(settingsFilePath))
             {
                 string json = File.ReadAllText(settingsFilePath);
-                UserSettings = JsonConvert.DeserializeObject<UserSettings>(json);
+                UserSettings = JsonConvert.DeserializeObject<UserSettings>(json, _serializerSettings);
             }
             else
             {
                 UserSettings = new UserSettings();
             }
-        }        
+
+            if (UserSettings != null)
+                UserSettings.SettingsChanged += (_, __) => SettingsChanged?.Invoke(this, __);
+        }
+
         private void SaveSettings()
         {
             try
@@ -76,7 +79,7 @@ namespace VisualHFT.UserSettings
                 }
 
                 // Serialize to JSON file
-                string json = JsonConvert.SerializeObject(UserSettings);
+                string json = JsonConvert.SerializeObject(UserSettings, _serializerSettings);
 
                 // Write to file
                 File.WriteAllText(settingsFilePath, json);
@@ -88,47 +91,45 @@ namespace VisualHFT.UserSettings
             }
         }
 
-        public T GetSetting<T>(SettingKey key, string id) where T : class
+        public T? GetSetting<T>(SettingKey key, string id) where T : class
         {
-            if (UserSettings.ComponentSettings.TryGetValue(key, out var idSettings))
+            var value = UserSettings.GetSetting(key, id);
+
+            if (value == null)
+                return null;
+
+            if (value is T castedValue)
+                return castedValue;
+
+            try
             {
-                if (idSettings.TryGetValue(id, out var value))
-                {
-                    try
-                    {
-                        if (value is T)
-                            return value as T;
-                        else
-                        {
-                            // Attempt to deserialize the object into the expected type
-                            T typedValue = JsonConvert.DeserializeObject<T>(value.ToString());
-                            if (typedValue != null)
-                            {
-                                return typedValue;
-                            }
-                        }
-                    }
-                    catch (JsonException ex)
-                    {
-                        return null;
-                    }
-                }
+                var strValue = value.ToString();
+                if (strValue == null)
+                    return null;
+
+                var typedValue = JsonConvert.DeserializeObject<T>(strValue);
+                if (typedValue != null)
+                    return typedValue;
             }
+            catch (JsonException)
+            {
+                return null;
+            }
+
             return null;
         }
-        public void SetSetting(SettingKey key, string id, object value)
+
+        public void SetSetting(SettingKey key, string id, IBaseSettings setting)
         {
-            if (!UserSettings.ComponentSettings.ContainsKey(key))
-            {
-                UserSettings.ComponentSettings[key] = new Dictionary<string, object>();
-            }
-            UserSettings.ComponentSettings[key][id] = value;
+            UserSettings?.SetSetting(key, id, setting);
+            SettingsChanged?.Invoke(this, setting);
+
             SaveSettings();
         }
 
-
-
+        public void Save()
+        {
+            SaveSettings();
+        }
     }
-
 }
-

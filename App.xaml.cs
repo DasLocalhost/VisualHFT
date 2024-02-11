@@ -25,38 +25,42 @@ namespace VisualHFT
             //Launch the GC cleanup thread
             Task.Run(async () => { await GCCleanupAsync(); });
 
-            //Load Plugins
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await LoadPlugins();
-                }
-                catch (Exception ex)
-                {
-                    // Handle the exception
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show("ERROR LOADING Plugins: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
-                }
-            });
-
+            // Load Plugins
+            Task.Run(LoadPlugins)
+                .ContinueWith(_ => { SetupNotifications(); });
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            PluginManager.PluginManager.UnloadPlugins();
+            PluginManager.PluginManager.Instance?.UnloadPlugins();
             base.OnExit(e);
         }
 
         private async Task LoadPlugins()
         {
-            PluginManager.PluginManager.AllPluginsReloaded = false;
-            PluginManager.PluginManager.LoadPlugins();
-            PluginManager.PluginManager.StartPlugins();
-            PluginManager.PluginManager.AllPluginsReloaded = true;
+            try
+            {
+                PluginManager.PluginManager.Init();
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show("ERROR LOADING Plugins: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+            }
         }
+
+        private void SetupNotifications()
+        {
+            // TODO : add logs here
+            if (PluginManager.PluginManager.Instance == null || PluginManager.PluginManager.Instance?.AllPlugins == null)
+                return;
+
+            NotificationManager.NotificationManager.Init(PluginManager.PluginManager.Instance.AllPlugins);
+        }
+
         private async Task GCCleanupAsync()
         {
             //due to the high volume of data do this periodically.(this will get fired every 5 secs)

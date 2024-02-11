@@ -4,10 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.UserSettings;
+using MarketConnectors.Binance.ViewModel;
+using MarketConnectors.Binance.UserControls;
 
 namespace MarketConnectors.Binance.Model
 {
+    [DefaultSettingsView(typeof(PluginSettingsViewModel), typeof(PluginSettingsView))]
+    [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
         public string ApiKey { get; set; }
@@ -19,5 +24,7 @@ namespace MarketConnectors.Binance.Model
         public string Symbol { get; set; }
         public VisualHFT.Model.Provider Provider { get; set; }
         public AggregationLevel AggregationLevel { get; set; }
+
+        public event EventHandler? OnSettingsChanged;
     }
 }

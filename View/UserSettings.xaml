@@ -3,46 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:coll="clr-namespace:System.Collections.Generic;assembly=mscorlib"
         xmlns:local="clr-namespace:VisualHFT.View"
         xmlns:conv="clr-namespace:VisualHFT.Converters"
         xmlns:vm="clr-namespace:VisualHFT.ViewModel"
-
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:beh="clr-namespace:VisualHFT.Commons.WPF.Behaviours;assembly=VisualHFT.Commons.WPF"
+        
         xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
-        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"        
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{StaticResource MaterialDesignFont}"                      
-        
+        FontFamily="{StaticResource MaterialDesignFont}"
         
         mc:Ignorable="d"
-        Title="User Settings" Height="450" Width="800">
+        Title="User Settings" Height="550" Width="1200">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../GlobalStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <HierarchicalDataTemplate DataType="{x:Type vm:PropertyViewModel}" ItemsSource="{Binding Children}">
-                <StackPanel Orientation="Horizontal">
-                    <!-- Display property name -->
-                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="5" />
-                    
-                    <!-- Display property value -->
-                    <TextBox Text="{Binding Value}" Visibility="{Binding IsObject, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}" Margin="5" Width="200" />
-                </StackPanel>
+            <conv:EnumToDescriptionConverter x:Key="EnumToDescriptionConverter" />
+
+            <HierarchicalDataTemplate DataType="{x:Type vm:TreeViewModel}" ItemsSource="{Binding Children}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Header}" FontWeight="Bold" Margin="5" />
+                    <Ellipse Grid.Column="1" Stroke="White" Fill="Red" StrokeThickness="1" Width="8" Height="8"
+                             VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding IsValid, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}" />
+                </Grid>
             </HierarchicalDataTemplate>
 
+            <DataTemplate DataType="{x:Type vm:NoSettingViewModel}">
+                <Grid Grid.Column="1" Margin="5">
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">
+                        <Run FontSize="40">No Settings</Run>
+                        <LineBreak />
+                        <LineBreak />
+                        <Run FontSize="26">No settings page found for this type of settings</Run>
+                    </TextBlock>
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
-        <TreeView ItemsSource="{Binding Properties}" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TreeView ItemsSource="{Binding Categories}" Margin="5 10 10 5" HorizontalContentAlignment="Stretch">
+            <i:Interaction.Behaviors>
+                <beh:SelectedItemBehaviour SelectedItem="{Binding SelectedSettings, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+        </TreeView>
+
+        <Border Grid.Column="1" BorderBrush="White" BorderThickness="0 0 1 0" Margin="0 30" />
+
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Margin="5 15 5 5" 
+                      Visibility="{Binding SelectedSettings.IsBlank, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}">
+            <ItemsControl ItemsSource="{Binding SelectedSettings.Contents}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ContentControl Margin="0 0 0 10" Content="{Binding View}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Grid Grid.Column="2" Margin="5 15 5 5" Visibility="{Binding SelectedSettings.IsBlank, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center">
+                        <Run FontSize="40">No Settings</Run>
+                        <LineBreak />
+                        <LineBreak />
+                        <Run FontSize="26">No settings page found for this type of settings</Run>
+            </TextBlock>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Label Content="{Binding ValidationMessage}" d:Content="Test validation error message" Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 20 0" />
+            <Button Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Width="200" Height="50" Margin="10" Content="Save" Command="{Binding SaveCommand}" />
+        </StackPanel>
     </Grid>
-
-
 </Window>

@@ -5,9 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VisualHFT.UserSettings;
+using MarketConnectors.Bitfinex.ViewModel;
+using MarketConnectors.Bitfinex.UserControls;
+using VisualHFT.Commons.WPF.ViewModel;
 
 namespace MarketConnectors.Bitfinex.Model
 {
+    [DefaultSettingsView(typeof(PluginSettingsViewModel), typeof(PluginSettingsView))]
+    [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
         public string ApiKey { get; set; }

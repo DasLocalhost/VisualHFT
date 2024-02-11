@@ -2,7 +2,10 @@
 
 namespace VisualHFT.UserSettings
 {
-    public interface ISetting
+    /// <summary>
+    /// Settings container for plugins
+    /// </summary>
+    public interface ISetting : IBaseSettings
     {
         string Symbol { get; set; }
         Provider Provider { get; set; }

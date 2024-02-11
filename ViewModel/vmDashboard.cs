@@ -42,7 +42,7 @@ namespace VisualHFT.ViewModel
 
         private async Task LoadTilesAsync()
         {
-            while (!PluginManager.PluginManager.AllPluginsReloaded)
+            while (!PluginManager.PluginManager.Instance.AllPluginsReloaded)
                 await Task.Delay(1000); // allow plugins to be loaded in
 
             Tiles = new ObservableCollection<vmTile>();
@@ -51,17 +51,17 @@ namespace VisualHFT.ViewModel
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     //first, load single studies
-                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
+                    foreach (var study in PluginManager.PluginManager.Instance.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
                     {
                         Tiles.Add(new vmTile(study as IStudy));
                     }
                     //then, load multi-studies
-                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is IMultiStudy && x.GetCustomUI() == null))
+                    foreach (var study in PluginManager.PluginManager.Instance.AllPlugins.Where(x => x is IMultiStudy && x.GetCustomUI() == null))
                     {
                         Tiles.Add(new vmTile(study as IMultiStudy));
                     }
                     //then, load custom UIs
-                    foreach (var study in PluginManager.PluginManager.AllPlugins.Where(x => x is PluginManager.IPlugin && x.GetCustomUI() != null))
+                    foreach (var study in PluginManager.PluginManager.Instance.AllPlugins.Where(x => x is PluginManager.IPlugin && x.GetCustomUI() != null))
                     {
                         Tiles.Add(new vmTile(study as PluginManager.IPlugin));
                     }

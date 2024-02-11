@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.Studies;
 using VisualHFT.Model;
 using VisualHFT.PluginManager;
@@ -7,13 +8,14 @@ using VisualHFT.UserSettings;
 
 namespace VisualHFT.Commons.PluginManager
 {
-    public abstract class BasePluginStudy : IStudy, VisualHFT.PluginManager.IPlugin, IDisposable
+    public abstract class BasePluginStudy : IStudy, VisualHFT.PluginManager.IPlugin, INotificationSource, IDisposable
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected bool _disposed = false; // to track whether the object has been disposed
 
 
-        public abstract event EventHandler<decimal> OnAlertTriggered;
+        public abstract event EventHandler<INotification> OnNotificationRaised;
+        //public abstract event EventHandler<decimal> OnAlertTriggered;
         public abstract event EventHandler<BaseStudyModel> OnCalculated;
         public abstract event EventHandler<VisualHFT.PluginManager.ErrorEventArgs> OnError;
 
@@ -59,14 +61,10 @@ namespace VisualHFT.Commons.PluginManager
         {
             UserSettings.SettingsManager.Instance.SetSetting(SettingKey.TILE_STUDY, GetPluginUniqueID(), settings);
         }
+
         protected T LoadFromUserSettings<T>() where T : class
         {
-            var jObject = UserSettings.SettingsManager.Instance.GetSetting<object>(SettingKey.TILE_STUDY, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
-            if (jObject != null)
-            {
-                return jObject.ToObject<T>();
-            }
-            return null;
+            return UserSettings.SettingsManager.Instance.GetSetting<T>(SettingKey.TILE_STUDY, GetPluginUniqueID());
         }
 
         public virtual string GetPluginUniqueID()

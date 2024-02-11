@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,16 @@ namespace VisualHFT
                 return elements[index];
         }
 
+        public static IEnumerable<T> TryDequeueChunk<T>(this ConcurrentQueue<T> queue, int chunkSize)
+        {
+            for (int i = 0; i < chunkSize; i++)
+            {
+                T? item;
+                if (!queue.TryDequeue(out item))
+                    yield break;
 
+                yield return item;
+            }
+        }
     }
 }

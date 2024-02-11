@@ -105,10 +105,17 @@ namespace VisualHFT.Commons.PluginManager
 
         protected void SaveToUserSettings(ISetting settings)
         {
+            if (UserSettings.SettingsManager.Instance == null)
+                return;
+
             UserSettings.SettingsManager.Instance.SetSetting(SettingKey.PLUGIN, GetPluginUniqueID(), settings);
         }
-        protected T LoadFromUserSettings<T>() where T : class
+
+        protected T? LoadFromUserSettings<T>() where T : class
         {
+            if (UserSettings.SettingsManager.Instance == null)
+                return null;
+
             var jObject = UserSettings.SettingsManager.Instance.GetSetting<object>(SettingKey.PLUGIN, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
             if (jObject != null)
             {

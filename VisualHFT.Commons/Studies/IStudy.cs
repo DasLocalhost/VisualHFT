@@ -11,7 +11,6 @@ namespace VisualHFT.Commons.Studies
 {
     public interface IStudy: IDisposable
     {
-        public event EventHandler<decimal> OnAlertTriggered;
         public event EventHandler<BaseStudyModel> OnCalculated;
 
         Task StartAsync();

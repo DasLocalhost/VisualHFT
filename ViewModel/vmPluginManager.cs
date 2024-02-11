@@ -28,7 +28,7 @@ namespace VisualHFT.ViewModel
 
         public vmPluginManager()
         {
-            _plugins = new ObservableCollection<IPlugin>(PluginManager.PluginManager.AllPlugins);
+            _plugins = new ObservableCollection<IPlugin>(PluginManager.PluginManager.Instance.AllPlugins);
             RaisePropertyChanged(nameof(Plugins));
 
             StartPluginCommand = new DelegateCommand<IPlugin>(StartPlugin, CanStartPlugin);
@@ -45,8 +45,8 @@ namespace VisualHFT.ViewModel
         }
         private void StartPlugin(IPlugin plugin)
         {
-            PluginManager.PluginManager.StartPlugin(plugin);
-            _plugins = new ObservableCollection<IPlugin>(PluginManager.PluginManager.AllPlugins);
+            PluginManager.PluginManager.Instance.StartPlugin(plugin);
+            _plugins = new ObservableCollection<IPlugin>(PluginManager.PluginManager.Instance.AllPlugins);
             // Notify of any property changes if needed
             RaisePropertyChanged(nameof(Plugins));
             // Refresh the CanExecute status
@@ -57,8 +57,8 @@ namespace VisualHFT.ViewModel
         private void StopPlugin(IPlugin plugin)
         {
 
-            PluginManager.PluginManager.StopPlugin(plugin);
-            _plugins = new ObservableCollection<IPlugin>(PluginManager.PluginManager.AllPlugins);
+            PluginManager.PluginManager.Instance.StopPlugin(plugin);
+            _plugins = new ObservableCollection<IPlugin>(PluginManager.PluginManager.Instance.AllPlugins);
             // Notify of any property changes if needed
             RaisePropertyChanged(nameof(Plugins));
             // Refresh the CanExecute status
@@ -68,7 +68,7 @@ namespace VisualHFT.ViewModel
 
         private void ConfigurePlugin(IPlugin plugin)
         {
-            PluginManager.PluginManager.SettingPlugin(plugin);
+            PluginManager.PluginManager.Instance.SettingPlugin(plugin);
         }
 
         public void Dispose()

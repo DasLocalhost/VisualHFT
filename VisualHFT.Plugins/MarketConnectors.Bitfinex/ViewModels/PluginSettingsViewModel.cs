@@ -6,128 +6,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.DataRetriever;
 using VisualHFT.Helpers;
+using VisualHFT.UserSettings;
+using MarketConnectors.Bitfinex.Model;
+using System.Configuration.Provider;
+using System.Runtime;
+using Microsoft.VisualBasic;
 
 namespace MarketConnectors.Bitfinex.ViewModel
 {
-    public class PluginSettingsViewModel : INotifyPropertyChanged, IDataErrorInfo
+    public class PluginSettingsViewModel : BaseSettingsViewModel
     {
-        private string _apiKey;
-        private string _apiSecret;
-        private int _depthLevels;
-        private int _updateIntervalMs;
-        private int _providerId;
-        private string _providerName;
-        private List<string> _symbols;
-        private string _symbolsText;
-        private string _validationMessage;
-        private string _successMessage;
-        private Action _actionCloseWindow;
-        public ICommand OkCommand { get; private set; }
-        public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
+        private const string _defaultHeader = "Bitfinex PlugIn Settings";
 
-        public PluginSettingsViewModel(Action actionCloseWindow)
-        {
-            OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
-            CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
-            _actionCloseWindow = actionCloseWindow;
-        }
+        #region IDataErrorInfo implementation
 
+        public override string Error => null;
 
-        public string ApiKey
-        {
-            get => _apiKey;
-            set { _apiKey = value; OnPropertyChanged(nameof(ApiKey)); }
-        }
-        public string ApiSecret
-        {
-            get => _apiSecret;
-            set { _apiSecret = value; OnPropertyChanged(nameof(ApiSecret)); }
-        }
-        public string SymbolsText
-        {
-            get => string.Join(",", Symbols);
-            set
-            {
-                Symbols = value.Split(',').Select(s => s.Trim()).ToList();
-                OnPropertyChanged(nameof(SymbolsText));
-                OnPropertyChanged(nameof(Symbols)); 
-                RaiseCanExecuteChanged();
-            }
-        }
-
-
-        public List<string> Symbols
-        {
-            get => _symbols;
-            set
-            {
-                _symbols = value;
-                OnPropertyChanged(nameof(Symbols));
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public int DepthLevels
-        {
-            get => _depthLevels;
-            set
-            {
-                _depthLevels = value;
-                OnPropertyChanged(nameof(DepthLevels));
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public int UpdateIntervalMs
-        {
-            get => _updateIntervalMs;
-            set
-            {
-                _updateIntervalMs = value;
-                OnPropertyChanged(nameof(UpdateIntervalMs));
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public int ProviderId
-        {
-            get => _providerId;
-            set
-            {
-                _providerId = value;
-                OnPropertyChanged(nameof(ProviderId));
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public string ProviderName
-        {
-            get => _providerName;
-            set
-            {
-                _providerName = value;
-                OnPropertyChanged(nameof(ProviderName));
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public string ValidationMessage
-        {
-            get { return _validationMessage; }
-            set { _validationMessage = value; OnPropertyChanged(nameof(ValidationMessage));}
-        }
-
-        public string SuccessMessage
-        {
-            get { return _successMessage; }
-            set { _successMessage = value; OnPropertyChanged(nameof(SuccessMessage)); }
-        }
-        public string Error => null;
-
-        public string this[string columnName]
+        public override string this[string columnName]
         {
             get
             {
@@ -175,6 +73,167 @@ namespace MarketConnectors.Bitfinex.ViewModel
             }
         }
 
+        #endregion
+
+        #region Fields
+
+        private string _apiKey;
+        private string _apiSecret;
+        private int _depthLevels;
+        private int _updateIntervalMs;
+        private int _providerId;
+        private string _providerName;
+        private List<string> _symbols;
+        private string _symbolsText;
+        private string _validationMessage;
+        private string _successMessage;
+        private Action _actionCloseWindow;
+
+        #endregion
+
+        #region Properties
+
+        public string ApiKey
+        {
+            get => _apiKey;
+            set { _apiKey = value; RaisePropertyChanged(); }
+        }
+
+        public string ApiSecret
+        {
+            get => _apiSecret;
+            set { _apiSecret = value; RaisePropertyChanged(); }
+        }
+
+        public string SymbolsText
+        {
+            get => string.Join(",", Symbols);
+            set
+            {
+                Symbols = value.Split(',').Select(s => s.Trim()).ToList();
+                RaisePropertyChanged();
+                RaisePropertyChanged("Symbols");
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public List<string> Symbols
+        {
+            get => _symbols;
+            set
+            {
+                _symbols = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public int DepthLevels
+        {
+            get => _depthLevels;
+            set
+            {
+                _depthLevels = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public int UpdateIntervalMs
+        {
+            get => _updateIntervalMs;
+            set
+            {
+                _updateIntervalMs = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public int ProviderId
+        {
+            get => _providerId;
+            set
+            {
+                _providerId = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public string ProviderName
+        {
+            get => _providerName;
+            set
+            {
+                _providerName = value;
+                RaisePropertyChanged();
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        public string ValidationMessage
+        {
+            get { return _validationMessage; }
+            set { _validationMessage = value; RaisePropertyChanged(raiseSettingsChanged: false); }
+        }
+
+        public string SuccessMessage
+        {
+            get { return _successMessage; }
+            set { _successMessage = value; RaisePropertyChanged(raiseSettingsChanged: false); }
+        }
+
+        #endregion
+
+        public ICommand OkCommand { get; private set; }
+        public ICommand CancelCommand { get; private set; }
+        public Action UpdateSettingsFromUI{ get; set; }
+
+        public PluginSettingsViewModel(PlugInSettings settings) : base(settings, _defaultHeader)
+        {
+            //OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
+            //CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
+            //_actionCloseWindow = actionCloseWindow;
+
+            _apiSecret = settings.ApiSecret;
+            _apiKey = settings.ApiKey;
+            _depthLevels = settings.DepthLevels;
+            _providerId = settings.Provider.ProviderID;
+            _providerName = settings.Provider.ProviderName;
+            _symbols = settings.Symbols;
+        }
+
+        public override bool CheckIfValid()
+        {
+            // This checks if any validation message exists for any of the properties
+            return string.IsNullOrWhiteSpace(this[nameof(SymbolsText)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(DepthLevels)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(UpdateIntervalMs)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ProviderId)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
+        }
+
+        public override void ApplyChanges()
+        {
+            // TODO : logs / Exceptions here
+            if (_setting is not PlugInSettings castedSetting)
+                return;
+
+            if (SettingKey == null || SettingId == null)
+                return;
+
+            castedSetting.ApiSecret = ApiSecret;
+            castedSetting.ApiKey = ApiKey;
+            castedSetting.DepthLevels = DepthLevels;
+            castedSetting.Provider.ProviderID = ProviderId;
+            castedSetting.Symbols = Symbols;
+
+            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+        }
+
+
+
         private void ExecuteOkCommand(object obj)
         {            
             SuccessMessage = "Settings saved successfully!";
@@ -199,17 +258,5 @@ namespace MarketConnectors.Bitfinex.ViewModel
         {
             (OkCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
         }
-
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
     }
-
 }

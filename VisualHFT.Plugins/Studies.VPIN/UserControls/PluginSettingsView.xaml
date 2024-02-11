@@ -3,28 +3,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VisualHFT.Studies.VPIN.UserControls"
-             mc:Ignorable="d" >
-    <Grid Margin="10">
-        <StackPanel>
-            <Label Content="Provider" Margin="0,0"/>
-            <ComboBox Margin="0,5"
-                      ItemsSource="{Binding Path=Providers}" 
-                      SelectedItem="{Binding SelectedProvider, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" 
-                      DisplayMemberPath="ProviderName" FontSize="18" />
+             mc:Ignorable="d"
+             
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{StaticResource MaterialDesignFont}"
+             
+             d:DesignHeight="480" d:DesignWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock Text="{Binding Header}" d:Text="Test Header VPIN" FontWeight="Bold" Margin="5" FontSize="15" />
 
-            <Label Content="Symbol"/>
-            <ComboBox FontSize="18" Margin="0,5"
-                      ItemsSource="{Binding Symbols}" 
-                      SelectedItem="{Binding SelectedSymbol, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+        <Border Grid.Row="1" BorderBrush="White" BorderThickness="0 0 0 1" Margin="5 0 30 0" />
 
-            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                <Label Content="Bucket Volumen Size" />
-                <TextBlock Text="ℹ️" Cursor="Hand" Margin="10 5 0 0" >
-                    <TextBlock.ToolTip>
-                        <ToolTip>
-                            <StackPanel>
-                                <TextBlock TextWrapping="Wrap" >
+        <StackPanel Grid.Row="2" Margin="20 10 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Provider" VerticalAlignment="Center" Margin="5 5 0 5" />
+
+                <ComboBox Grid.Column="1" Margin="5" ItemsSource="{Binding Path=Providers}" 
+                          SelectedItem="{Binding SelectedProvider, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" 
+                          DisplayMemberPath="ProviderName" />
+            </Grid>
+
+            <Grid Margin="0 5 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Symbol" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <ComboBox Grid.Column="1" Margin="5" 
+                          ItemsSource="{Binding Symbols}" 
+                          SelectedItem="{Binding SelectedSymbol, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+            </Grid>
+
+            <Grid Margin="0 5 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Margin="5 5 0 5" VerticalAlignment="Center">
+                    <TextBlock Text="Bucket Volumen Size" VerticalAlignment="Center" />
+
+                    <TextBlock Text="ℹ️" Cursor="Hand" Margin="10 0 0 0" >
+                        <TextBlock.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock TextWrapping="Wrap" >
                                 <Run FontWeight="Bold">Bucket Size</Run>
                                 <LineBreak />
                                 <Run>The "Bucket Size" represents a predefined quantity or volume of data points or trades. </Run>
@@ -41,30 +80,28 @@
                                 <LineBreak />
                                 <Run>2. Choose a larger bucket size for a broader overview, which can be useful for spotting long-term trends.</Run>
                                 <LineBreak />
-                                </TextBlock>
-                            </StackPanel>
-                        </ToolTip>
-                    </TextBlock.ToolTip>
-            </TextBlock>
-            </StackPanel>
-            <TextBox Text="{Binding BucketVolumeSize, ValidatesOnDataErrors=True}" Margin="0,5" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+                </StackPanel>
+                <TextBox Grid.Column="1" Text="{Binding BucketVolumeSize, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" d:Text="10" 
+                             VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5" />
+            </Grid>
 
+            <Grid Margin="0 5 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
 
-
-            <Label Content="Aggregation"/>
-            <ComboBox ItemsSource="{Binding AggregationLevels}" Margin="0,5"
-                  DisplayMemberPath="Item1" 
-                  SelectedValuePath="Item2" 
-                  SelectedValue="{Binding AggregationLevelSelection}" 
-                  FontSize="18"/>
-
-
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
-                <Label Content="{Binding ValidationMessage}" Foreground="Red" HorizontalAlignment="Left" Margin="0 0 20 0" />
-                <Button Content="OK" Command="{Binding OkCommand}" Margin="0,0,5,0" Width="80" />
-                <Button Content="Cancel" Command="{Binding CancelCommand}" Width="80" />
-            </StackPanel>
+                <TextBlock Text="Aggregation" VerticalAlignment="Center" Margin="5 5 0 5" />
+                <ComboBox Grid.Column="1" ItemsSource="{Binding AggregationLevels}" Margin="5"
+                          DisplayMemberPath="Item1" 
+                          SelectedValuePath="Item2" 
+                          SelectedValue="{Binding AggregationLevelSelection, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

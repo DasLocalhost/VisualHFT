@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using VisualHFT.Commons.NotificationManager;
+using VisualHFT.Commons.NotificationManager.Notifications;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.Commons.Pools;
 using VisualHFT.Helpers;
@@ -34,16 +36,16 @@ namespace VisualHFT.Studies
         private decimal _lastMarketMidPrice = 0; //keep track of market price
         private object _locker = new object();
 
-        private const decimal VPIN_THRESHOLD = 0.7M; // ALERT Example threshold
+        private const decimal VPIN_THRESHOLD = 0.1M; // ALERT Example threshold
 
         private DateTime _currentBucketStartTime;
         private DateTime _currentBucketEndTime;
 
         // Event declaration
-        public override event EventHandler<decimal> OnAlertTriggered;
+        //public override event EventHandler<decimal> OnAlertTriggered;
+        public override event EventHandler<INotification> OnNotificationRaised;
         public override event EventHandler<BaseStudyModel> OnCalculated;
         public override event EventHandler<ErrorEventArgs> OnError;
-
 
         public override string Name { get; set; } = "VPIN Study Plugin";
         public override string Version { get; set; } = "1.0.0";
@@ -146,7 +148,8 @@ namespace VisualHFT.Studies
                 valueColor = "Green";
                 // Check against threshold and trigger alert
                 if (vpin > VPIN_THRESHOLD)
-                    OnAlertTriggered?.Invoke(this, vpin);
+                    Notify("New VPin!", $"{vpin} | {VPIN_THRESHOLD}");
+                //OnAlertTriggered?.Invoke(this, vpin);
                 ResetBucket();
             }
             // Add to rolling window and remove oldest if size exceeded
@@ -216,21 +219,21 @@ namespace VisualHFT.Studies
         }
         public override object GetUISettings()
         {
-            PluginSettingsView view = new PluginSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(CloseSettingWindow);
-            viewModel.BucketVolumeSize = _settings.BucketVolSize;
-            viewModel.SelectedSymbol = _settings.Symbol;
-            viewModel.SelectedProviderID = _settings.Provider.ProviderID;
-            viewModel.AggregationLevelSelection = _settings.AggregationLevel;
+            PluginCompactSettingsView view = new PluginCompactSettingsView();
+            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
+            //viewModel.BucketVolumeSize = _settings.BucketVolSize;
+            //viewModel.SelectedSymbol = _settings.Symbol;
+            //viewModel.SelectedProviderID = _settings.Provider.ProviderID;
+            //viewModel.AggregationLevelSelection = _settings.AggregationLevel;
 
             viewModel.UpdateSettingsFromUI = () =>
             {
-                _settings.BucketVolSize = viewModel.BucketVolumeSize;
-                _settings.Symbol = viewModel.SelectedSymbol;
-                _settings.Provider = viewModel.SelectedProvider;
-                _settings.AggregationLevel = viewModel.AggregationLevelSelection;
-                _bucketVolumeSize = (decimal)_settings.BucketVolSize;
-                SaveSettings();
+                //    _settings.BucketVolSize = viewModel.BucketVolumeSize;
+                //    _settings.Symbol = viewModel.SelectedSymbol;
+                //    _settings.Provider = viewModel.SelectedProvider;
+                //    _settings.AggregationLevel = viewModel.AggregationLevelSelection;
+
+                //    SaveSettings();
 
                 // Start the Reconnection 
                 //  It will allow to reload with the new values
@@ -242,6 +245,20 @@ namespace VisualHFT.Studies
             // Display the view, perhaps in a dialog or a new window.
             view.DataContext = viewModel;
             return view;
+        }
+
+        /// <summary>
+        /// Example how to send notifications
+        /// </summary>
+        /// <param name="subject">Notification's title</param>
+        /// <param name="value">Notification's text</param>
+        private void Notify(string subject, object value)
+        {
+            var notification = new TextNotification(subject, $"{value}")
+                .FromPlugin("VPINStudy", GetPluginUniqueID())
+                .SetConcatenation(Concatenation.Simple);
+
+            OnNotificationRaised?.Invoke(this, notification);
         }
 
     }
