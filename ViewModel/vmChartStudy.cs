@@ -11,6 +11,7 @@ using System.Windows.Input;
 using OxyPlot;
 using VisualHFT.Commons.Pools;
 using Microsoft.Extensions.ObjectPool;
+using VisualHFT.Commons.PluginManager;
 
 namespace VisualHFT.ViewModels
 {
@@ -31,12 +32,14 @@ namespace VisualHFT.ViewModels
                 new Dictionary<IStudy, AggregatedCollection<BaseStudyModel>>();
 
         private readonly object _locker = new object();
-
+        private readonly IPluginManager _pluginManager;
         private int _MAX_ITEMS = 500;
         private UIUpdater uiUpdater;
 
-        public vmChartStudy(IStudy study)
+        public vmChartStudy(IStudy study, IPluginManager pluginManager)
         {
+            _pluginManager = pluginManager;
+
             _studies.Add(study);
             _settings = ((PluginManager.IPlugin)study).Settings;
             _plugin = (PluginManager.IPlugin)study;
@@ -48,8 +51,10 @@ namespace VisualHFT.ViewModels
             InitializeData();
             uiUpdater = new UIUpdater(uiUpdaterAction);
         }
-        public vmChartStudy(IMultiStudy multiStudy)
+        public vmChartStudy(IMultiStudy multiStudy, IPluginManager pluginManager)
         {
+            _pluginManager = pluginManager;
+
             foreach (var study in multiStudy.Studies)
             {
                 _studies.Add(study);
@@ -106,13 +111,13 @@ namespace VisualHFT.ViewModels
             if (MyPlotModel != null)
                 MyPlotModel.InvalidatePlot(true);
         }
+
         private void OpenSettings(object obj)
         {
-            PluginManager.PluginManager.Instance.SettingPlugin(_plugin);
+            _pluginManager.SettingPlugin(_plugin);
             InitializeData();
-
-
         }
+
         private void InitializeChart()
         {
             MyPlotModel = new OxyPlot.PlotModel();

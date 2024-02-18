@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.NotificationManager.Slack;
 using VisualHFT.NotificationManager.Toast;
 using VisualHFT.NotificationManager.Twitter;
@@ -24,6 +25,7 @@ namespace VisualHFT.NotificationManager
     /// </summary>
     public class NotificationManager : INotificationManager
     {
+        private readonly IPluginManager _pluginManager;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #region Fields
@@ -41,41 +43,43 @@ namespace VisualHFT.NotificationManager
         /// </summary>
         public Dictionary<string, INotificationBehaviour>? ActiveBehaviours => _behaviours;
 
-        public static NotificationManager? Instance { get; private set; }
-
         #endregion
+
+        public NotificationManager(IPluginManager pluginManager)
+        {
+            this._pluginManager = pluginManager;
+        }
 
         /// <summary>
         /// Try to init the notifications subsystem.
         /// Inner initialization order - Init Behaviours -> Init processors (balancers) -> Start processors -> Map routing -> Start listening
         /// </summary>
         /// <param name="plugins"></param>
-        public static void Init(IList<PluginManager.IPlugin> plugins)
+        public void Initialize()
         {
             try
             {
                 log.Info("Notifications: Start initialization.");
 
-                Instance = new NotificationManager();
-
                 log.Debug("Notifications: Init behaviors.");
-                Instance.InitBehaviours();
+                InitBehaviours();
                 log.Debug("Notifications: Init balancers.");
-                Instance.InitBalancers();
+                InitBalancers();
 
                 log.Debug("Notifications: Start processing.");
-                Instance.StartProcessing();
+                StartProcessing();
 
                 // Make routing using plugin settings
                 log.Debug("Notifications: Map routing.");
-                Instance.MapRouting(plugins);
+                MapRouting(_pluginManager.AllPlugins);
 
                 // Subscribe to notification raised event only after init is done
-                foreach (var plugin in plugins)
+                foreach (var plugin in _pluginManager.AllPlugins)
                 {
                     if (plugin is INotificationSource source)
                     {
-                        source.OnNotificationRaised += Instance.OnNotificationRaised;
+                        // TODO : make a global switch 'Notifications enabled / disabled'
+                        source.OnNotificationRaised += OnNotificationRaised;
                         log.Info($"Notifications: subscription for [{plugin.Name}] plugin is done.");
                     }
                 }
@@ -95,7 +99,7 @@ namespace VisualHFT.NotificationManager
         /// </summary>
         private void InitBehaviours()
         {
-            if (PluginManager.PluginManager.Instance == null)
+            if (_pluginManager == null)
                 throw new Exception("Can't initialized behaviors - PluginManager instance is null. Check the initialization order.");
 
             var behavioursList = GetBehaviours();
@@ -105,7 +109,7 @@ namespace VisualHFT.NotificationManager
             {
                 try
                 {
-                    behaviour.Init(PluginManager.PluginManager.Instance.AllPlugins);
+                    behaviour.Init(_pluginManager.AllPlugins);
                 }
                 catch (Exception ex)
                 {

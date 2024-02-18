@@ -9,6 +9,14 @@ namespace VisualHFT.Commons.PluginManager
 {
     public interface IPluginManager
     {
-        public List<IPlugin> AllPlugins { get; }
+        List<IPlugin> AllPlugins { get; }
+        bool AllPluginsReloaded { get; }
+
+        void Initialize();
+
+        void StartPlugin(IPlugin plugin);
+        void StopPlugin(IPlugin plugin);
+        void SettingPlugin(IPlugin plugin);
+        void UnloadPlugins();
     }
 }

@@ -8,12 +8,14 @@ using VisualHFT.Commons.Studies;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Data;
+using VisualHFT.Commons.PluginManager;
 
 namespace VisualHFT.ViewModel
 {
     public class vmDashboard : BindableBase
     {
         private Dictionary<string, Func<string, string, bool>> _dialogs;
+        private readonly IPluginManager _pluginManager;
         private string _selectedSymbol;
         private string _selectedLayer;
         private string _selectedStrategy;
@@ -26,9 +28,10 @@ namespace VisualHFT.ViewModel
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
-        public vmDashboard(Dictionary<string, Func<string, string, bool>> dialogs)
+        public vmDashboard(Dictionary<string, Func<string, string, bool>> dialogs, IPluginManager pluginManager)
         {
             this._dialogs = dialogs;
+            _pluginManager = pluginManager;
             CmdAbort = new RelayCommand<object>(DoAbort);
 
             HelperSymbol.Instance.OnCollectionChanged += ALLSYMBOLS_CollectionChanged;
@@ -42,7 +45,7 @@ namespace VisualHFT.ViewModel
 
         private async Task LoadTilesAsync()
         {
-            while (!PluginManager.PluginManager.Instance.AllPluginsReloaded)
+            while (!_pluginManager.AllPluginsReloaded)
                 await Task.Delay(1000); // allow plugins to be loaded in
 
             Tiles = new ObservableCollection<vmTile>();
@@ -51,19 +54,19 @@ namespace VisualHFT.ViewModel
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     //first, load single studies
-                    foreach (var study in PluginManager.PluginManager.Instance.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
+                    foreach (var study in _pluginManager.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
                     {
-                        Tiles.Add(new vmTile(study as IStudy));
+                        Tiles.Add(new vmTile(study as IStudy, _pluginManager));
                     }
                     //then, load multi-studies
-                    foreach (var study in PluginManager.PluginManager.Instance.AllPlugins.Where(x => x is IMultiStudy && x.GetCustomUI() == null))
+                    foreach (var study in _pluginManager.AllPlugins.Where(x => x is IMultiStudy && x.GetCustomUI() == null))
                     {
-                        Tiles.Add(new vmTile(study as IMultiStudy));
+                        Tiles.Add(new vmTile(study as IMultiStudy, _pluginManager));
                     }
                     //then, load custom UIs
-                    foreach (var study in PluginManager.PluginManager.Instance.AllPlugins.Where(x => x is PluginManager.IPlugin && x.GetCustomUI() != null))
+                    foreach (var study in _pluginManager.AllPlugins.Where(x => x is PluginManager.IPlugin && x.GetCustomUI() != null))
                     {
-                        Tiles.Add(new vmTile(study as PluginManager.IPlugin));
+                        Tiles.Add(new vmTile(study as PluginManager.IPlugin, _pluginManager));
                     }
                 });
             }

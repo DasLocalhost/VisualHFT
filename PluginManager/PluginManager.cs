@@ -40,22 +40,24 @@ namespace VisualHFT.PluginManager
 
         #endregion
 
-        public static PluginManager? Instance { get; private set; } = null;
+        //public static PluginManager? Instance { get; private set; } = null;
 
-        public static void Init()
+        public PluginManager() { }
+
+        public void Initialize()
         {
             try
             {
                 // TODO : replace with custom exception
-                if (Instance != null)
-                    throw new Exception();
+                //if (Instance != null)
+                //    throw new Exception();
 
-                Instance = new PluginManager();
+                //Instance = new PluginManager();
 
-                Instance.AllPluginsReloaded = false;
-                Instance.LoadPlugins();
-                Instance.StartPlugins();
-                Instance.AllPluginsReloaded = true;
+                AllPluginsReloaded = false;
+                LoadPlugins();
+                StartPlugins();
+                AllPluginsReloaded = true;
             }
             catch (Exception ex)
             {
@@ -63,7 +65,7 @@ namespace VisualHFT.PluginManager
             }
         }
 
-        public void LoadPlugins()
+        private void LoadPlugins()
         {
             // 1. By default load all dll's in current Folder. 
             var pluginsDirectory = AppDomain.CurrentDomain.BaseDirectory; // This gets the directory where your WPF app is running
@@ -78,7 +80,7 @@ namespace VisualHFT.PluginManager
 
         }
 
-        public void StartPlugins()
+        private void StartPlugins()
         {
             lock (_locker)
             {
@@ -126,6 +128,7 @@ namespace VisualHFT.PluginManager
                 throw;
             }
         }
+
         public void StopPlugin(IPlugin plugin)
         {
             try

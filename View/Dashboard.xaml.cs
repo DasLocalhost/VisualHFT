@@ -17,6 +17,7 @@ using VisualHFT.UserSettings;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Windows.Markup;
+using VisualHFT.Commons.PluginManager;
 
 namespace VisualHFT
 {
@@ -25,14 +26,17 @@ namespace VisualHFT
     /// </summary>
     public partial class Dashboard : Window
     {
-        public Dashboard()
+        private readonly IPluginManager _pluginManager;
+
+        public Dashboard(IPluginManager pluginManager)
         {
+            _pluginManager = pluginManager;
+
             FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement),
                 new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name)));
 
             InitializeComponent();
-            this.DataContext = new VisualHFT.ViewModel.vmDashboard(Helpers.HelperCommon.GLOBAL_DIALOGS);
-
+            this.DataContext = new VisualHFT.ViewModel.vmDashboard(Helpers.HelperCommon.GLOBAL_DIALOGS, pluginManager);
         }
 
         private void ButtonAnalyticsReport_Click(object sender, RoutedEventArgs e)
@@ -75,7 +79,7 @@ namespace VisualHFT
         private void ButtonPluginManagement_Click(object sender, RoutedEventArgs e)
         {
             var form = new View.PluginManagerWindow();
-            form.DataContext = new vmPluginManager();
+            form.DataContext = new vmPluginManager(_pluginManager);
             form.Show();
         }
     }
