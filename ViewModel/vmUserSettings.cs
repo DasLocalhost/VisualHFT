@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using VisualHFT.Commons.Helpers;
+using VisualHFT.Commons.WPF.Helper;
 using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
@@ -145,20 +146,26 @@ namespace VisualHFT.ViewModel
 
         private object? ParseAsAttribute(SettingKey key, string id, IBaseSettings setting)
         {
-            // Get the view / viewmodel types from the attribute
-            var vmType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewModelType);
-            var viewType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewType);
+            // Get settings UI from metadata
+            var mappedUI = UIHelper.GetSettingsUI(setting);
 
-            // Return null if mapping is missing
-            if (vmType == null || viewType == null)
+            if (mappedUI == null || mappedUI?.view is not UserControl view || mappedUI?.vm is not BaseSettingsViewModel viewModel)
                 return null;
 
-            var viewModel = Activator.CreateInstance(vmType, setting) as BaseSettingsViewModel;
-            var view = Activator.CreateInstance(viewType) as UserControl;
+            //// Get the view / viewmodel types from the attribute
+            //var vmType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewModelType);
+            //var viewType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewType);
 
-            // Return null if can't create an instance of mapped view / viewmodel
-            if (viewModel == null || view == null)
-                return null;
+            //// Return null if mapping is missing
+            //if (vmType == null || viewType == null)
+            //    return null;
+
+            //var viewModel = Activator.CreateInstance(vmType, setting) as BaseSettingsViewModel;
+            //var view = Activator.CreateInstance(viewType) as UserControl;
+
+            //// Return null if can't create an instance of mapped view / viewmodel
+            //if (viewModel == null || view == null)
+            //    return null;
 
             viewModel.SettingKey = key;
             viewModel.SettingId = id;

@@ -14,6 +14,8 @@ using System.Windows.Controls;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.Commons.Studies;
+using VisualHFT.Commons.WPF.Helper;
+using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.DataRetriever;
 using VisualHFT.UserSettings;
 using VisualHFT.ViewModel;
@@ -144,9 +146,31 @@ namespace VisualHFT.PluginManager
 
         public void SettingPlugin(IPlugin plugin)
         {
+            if (plugin == null)
+                return;
+
+            try
+            {
+                var settings = UIHelper.GetSettingsUI(plugin);
+
+                if (settings == null || settings?.view is not UserControl view || settings?.vm is not IModularViewModel viewModel)
+                {
+                    log.Warn($"Plugins: Can't find Settings UI for [{plugin.Name}] plugin.");
+                    return;
+                }
+
+                view.DataContext = viewModel;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
             UserControl _ucSettings = null;
             try
             {
+
                 if (plugin != null)
                 {
                     var formSettings = new View.PluginSettings();
