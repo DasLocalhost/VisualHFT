@@ -232,7 +232,8 @@ namespace VisualHFT.Studies.MarketResilience.ViewModel
             castedSetting.Provider.ProviderID = SelectedProviderID ?? 0;
             castedSetting.AggregationLevel = AggregationLevelSelection;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : event here
+            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }
 }

@@ -86,7 +86,7 @@ namespace VisualHFT.NotificationManager.Twitter
 
         #endregion
 
-        public TwitterNotificationBehaviour()
+        public TwitterNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
         {
             NotificationTargetName = "Twitter Notifications";
             Version = "1.0.0.0";

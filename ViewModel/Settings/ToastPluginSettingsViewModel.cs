@@ -123,7 +123,8 @@ namespace VisualHFT.ViewModel.Settings
             castedSetting.IncludeTimeStamp = IncludeTimeStamp;
             castedSetting.IsEnabled = IsEnabled;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : event here
+            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
 
             //castedSetting.UpdateInSource();
         }

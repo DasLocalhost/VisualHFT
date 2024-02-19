@@ -70,7 +70,8 @@ namespace VisualHFT.ViewModel.Settings
             castedSetting.Threshold = Threshold;
             castedSetting.UpdateTime = UpdateTime;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : event here
         }
     }
 }

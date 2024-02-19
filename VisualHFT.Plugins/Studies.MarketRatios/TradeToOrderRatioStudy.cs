@@ -50,7 +50,7 @@ namespace VisualHFT.Studies
         public override string TileToolTip { get; set; } = "The <b>TTO</b> (Volume - Trade To Order Ratio) value is a key metric that measures the efficiency of trading by comparing the number of executed trades to the number of orders placed.<br/><br/>" +
                 "<b>TTO</b> is calculation as follows: <i>TTO Ratio=Number of Executed Trades / Number of Orders Placed</i><br/>";
 
-        public TradeToOrderRatioStudy()
+        public TradeToOrderRatioStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);

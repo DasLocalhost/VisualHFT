@@ -30,7 +30,7 @@ namespace VisualHFT.NotificationManager.Toast
 
         #endregion
 
-        public ToastNotificationBehaviour()
+        public ToastNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
         {
             NotificationTargetName = "Windows 10 Toast Notifications";
             Version = "1.0.0.0";

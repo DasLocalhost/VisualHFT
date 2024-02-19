@@ -31,6 +31,7 @@ namespace VisualHFT.ViewModel
         private string _validationMessage = string.Empty;
         private bool _containsUnsaved = false;
         private List<BaseSettingsViewModel> _allViewModels = new List<BaseSettingsViewModel>();
+        private readonly ISettingsManager _settingsManager;
 
         #endregion
 
@@ -70,7 +71,7 @@ namespace VisualHFT.ViewModel
 
         public ObservableCollection<TreeViewModel> Categories { get; set; } = new ObservableCollection<TreeViewModel>();
 
-        public UserSettings.UserSettings Settings { get; } = SettingsManager.Instance.UserSettings;
+        public UserSettings.UserSettings? Settings => _settingsManager.UserSettings;
 
         public TreeViewModel? SelectedSettings { get; set; }
 
@@ -81,8 +82,10 @@ namespace VisualHFT.ViewModel
 
         public event EventHandler? OnClose;
 
-        public vmUserSettings()
+        public vmUserSettings(ISettingsManager settingsManager)
         {
+            _settingsManager = settingsManager;
+
             CancelCommand = new RelayCommand<object>(Cancel);
             SaveCommand = new RelayCommand<object>(SaveSettings, CanSave);
 
@@ -96,8 +99,12 @@ namespace VisualHFT.ViewModel
             _allViewModels.Clear();
             Categories.Clear();
 
-            var settings = SettingsManager.Instance.UserSettings.ComponentSettings;
-            var pluginNotificationSettings = SettingsManager.Instance.UserSettings.GetPluginsRelatedNotificationSettings();
+            // TODO : custom exception here
+            if (_settingsManager.UserSettings == null)
+                return;
+
+            var settings = _settingsManager.UserSettings.ComponentSettings;
+            var pluginNotificationSettings = _settingsManager.UserSettings.GetPluginsRelatedNotificationSettings();
 
             foreach (var group in settings)
             {
@@ -147,25 +154,10 @@ namespace VisualHFT.ViewModel
         private object? ParseAsAttribute(SettingKey key, string id, IBaseSettings setting)
         {
             // Get settings UI from metadata
-            var mappedUI = UIHelper.GetSettingsUI(setting);
+            var mappedUI = Commons.WPF.Helper.UIHelper.GetSettingsUI(setting);
 
             if (mappedUI == null || mappedUI?.view is not UserControl view || mappedUI?.vm is not BaseSettingsViewModel viewModel)
                 return null;
-
-            //// Get the view / viewmodel types from the attribute
-            //var vmType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewModelType);
-            //var viewType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewType);
-
-            //// Return null if mapping is missing
-            //if (vmType == null || viewType == null)
-            //    return null;
-
-            //var viewModel = Activator.CreateInstance(vmType, setting) as BaseSettingsViewModel;
-            //var view = Activator.CreateInstance(viewType) as UserControl;
-
-            //// Return null if can't create an instance of mapped view / viewmodel
-            //if (viewModel == null || view == null)
-            //    return null;
 
             viewModel.SettingKey = key;
             viewModel.SettingId = id;
@@ -205,11 +197,11 @@ namespace VisualHFT.ViewModel
                     }
                     catch
                     {
-
+                        // TODO : change the logic here
                     }
                 }
 
-                SettingsManager.Instance.Save();
+                _settingsManager.Save();
 
                 ContainsUnsaved = false;
                 (SaveCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();

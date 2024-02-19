@@ -11,6 +11,7 @@ using System.Windows;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.PluginManager;
+using VisualHFT.UserSettings;
 
 namespace VisualHFT
 {
@@ -19,7 +20,7 @@ namespace VisualHFT
     /// </summary>
     public partial class App : Application
     {
-        private static IContainer _container;
+        private static IContainer? _container;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -32,6 +33,12 @@ namespace VisualHFT
             Task.Run(async () => { await GCCleanupAsync(); });
 
             var builder = new ContainerBuilder();
+
+            // Register setting manager
+            builder.RegisterType<SettingsManager>()
+                .As<ISettingsManager>()
+                .SingleInstance()
+                .AutoActivate();
 
             // Register plugin manager and load plugins
             builder.RegisterType<PluginManager.PluginManager>()

@@ -232,7 +232,8 @@ namespace VisualHFT.Studies.MarketRatios.ViewModel
             castedSetting.Provider.ProviderID = SelectedProviderID ?? 0;
             castedSetting.AggregationLevel = AggregationLevelSelection;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : events here
+            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }
 }

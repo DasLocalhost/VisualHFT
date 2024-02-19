@@ -229,7 +229,8 @@ namespace MarketConnectors.Bitfinex.ViewModel
             castedSetting.Provider.ProviderID = ProviderId;
             castedSetting.Symbols = Symbols;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : event here
+            //SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
 
 

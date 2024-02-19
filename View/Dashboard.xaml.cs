@@ -27,10 +27,12 @@ namespace VisualHFT
     public partial class Dashboard : Window
     {
         private readonly IPluginManager _pluginManager;
+        private readonly ISettingsManager _settingsManager;
 
-        public Dashboard(IPluginManager pluginManager)
+        public Dashboard(IPluginManager pluginManager, ISettingsManager settingsManager)
         {
             _pluginManager = pluginManager;
+            _settingsManager = settingsManager;
 
             FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement),
                 new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name)));
@@ -52,21 +54,20 @@ namespace VisualHFT
                 {
                     oReport.Signals = Helpers.HelperCommon.EXECUTEDORDERS.Positions.Where(x => x.PipsPnLInCurrency.HasValue && cboSelectedSymbol.SelectedValue.ToString() == x.Symbol).OrderBy(x => x.CreationTimeStamp).ToList();
                 }
-
             }
             catch (Exception ex)
             {
-
                 MessageBox.Show(ex.ToString(), "ERRROR", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             oReport.Show();
-
         }
 
         private void ButtonAppSettings_Click(object sender, RoutedEventArgs e)
         {
-            SettingsManager.Instance.ShowMainSettings();
+            // TODO : replace with UI helper call. It's not a settings manager's responsibility to generate UI
+            //_settingsManager.ShowMainSettings();
+            UIHelper.ShowMainSettings(_settingsManager);
         }
 
         private void ButtonMultiVenuePrices_Click(object sender, RoutedEventArgs e)

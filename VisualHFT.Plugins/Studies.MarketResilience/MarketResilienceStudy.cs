@@ -60,7 +60,7 @@ namespace VisualHFT.Studies
                 "<br/>" +
                 "The <b>MR</b> score is the average of these two normalized metrics, ranging from 0 (no recovery) to 1 (full recovery).";
 
-        public MarketResilienceStudy()
+        public MarketResilienceStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);

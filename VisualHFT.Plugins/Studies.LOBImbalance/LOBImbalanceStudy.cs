@@ -39,7 +39,7 @@ namespace VisualHFT.Studies
                 "It highlights the difference in demand and supply in the order book, providing insights into potential price movements.<br/>" +
                 "A significant imbalance can indicate a strong buying or selling interest at that price.";
 
-        public LOBImbalanceStudy()
+        public LOBImbalanceStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
         }

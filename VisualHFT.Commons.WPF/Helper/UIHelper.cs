@@ -10,6 +10,7 @@ using VisualHFT.Commons.WPF.ViewModel;
 
 namespace VisualHFT.Commons.WPF.Helper
 {
+    // TODO : to refact UIHelper is a duplicated class. Need to specify name
     public static class UIHelper
     {
         /// <summary>

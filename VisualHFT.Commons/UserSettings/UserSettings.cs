@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -22,9 +23,10 @@ namespace VisualHFT.UserSettings
 
         public event EventHandler<IBaseSettings>? SettingsChanged;
 
+        public event EventHandler? OnSave;
+
         public UserSettings()
         {
-            //Settings = new Dictionary<SettingKey, object>();
             ComponentSettings = new HashSet<SettingsGroup>();
         }
 
@@ -101,7 +103,8 @@ namespace VisualHFT.UserSettings
         public void SaveSetting(IBaseSettings setting)
         {
             RaiseSettingsChanged(setting);
-            SettingsManager.Instance.Save();
+            OnSave?.Invoke(this, EventArgs.Empty);
+            //_settingsManager.Save();
         }
 
         /// <summary>

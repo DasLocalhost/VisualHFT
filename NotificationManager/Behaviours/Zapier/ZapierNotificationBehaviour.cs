@@ -22,7 +22,7 @@ namespace VisualHFT.NotificationManager.Zapier
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
 
-        public ZapierNotificationBehaviour()
+        public ZapierNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
         {
             NotificationTargetName = "Zapier Notifications";
             Version = "1.0.0.0";

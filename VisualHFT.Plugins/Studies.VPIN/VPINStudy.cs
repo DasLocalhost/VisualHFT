@@ -63,7 +63,7 @@ namespace VisualHFT.Studies
 
         public decimal BucketVolumeSize => _bucketVolumeSize;
 
-        public VPINStudy()
+        public VPINStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);

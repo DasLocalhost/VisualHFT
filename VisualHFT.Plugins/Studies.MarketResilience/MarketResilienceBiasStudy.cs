@@ -42,9 +42,9 @@ namespace VisualHFT.Studies
                 "<br/>" +
                 "The <b>MRB</b> score indicates the market's bias, with a value of 1 representing a bullish sentiment (sentiment up) and -1 representing a bearish sentiment (sentiment down). A zero (0) value represent unknown bias.";
 
-        public MarketResilienceBiasStudy()
+        public MarketResilienceBiasStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
-            _MARKETRESILIENCE = new MarketResilienceStudy();
+            _MARKETRESILIENCE = new MarketResilienceStudy(settingsManager);
             _MARKETRESILIENCE.Settings = _settings;
             _MARKETRESILIENCE.OnTradeRecovered += _MARKETRESILIENCE_OnTradeRecovered;
         }

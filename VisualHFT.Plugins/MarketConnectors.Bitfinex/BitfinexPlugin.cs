@@ -57,7 +57,7 @@ namespace MarketConnectors.Bitfinex
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
 
-        public BitfinexPlugin()
+        public BitfinexPlugin(ISettingsManager settingsManager) : base(settingsManager)
         {
             _socketClient = new BitfinexSocketClient(options =>
             {

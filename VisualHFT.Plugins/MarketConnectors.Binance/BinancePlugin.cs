@@ -56,7 +56,7 @@ namespace MarketConnectors.Binance
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
 
-        public BinancePlugin()
+        public BinancePlugin(ISettingsManager settingsManager) : base(settingsManager)
         {
             _socketClient = new BinanceSocketClient(options =>
             {

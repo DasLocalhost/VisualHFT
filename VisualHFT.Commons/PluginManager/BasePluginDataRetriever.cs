@@ -11,7 +11,7 @@ namespace VisualHFT.Commons.PluginManager
     {
         private Dictionary<string, string> parsedNormalizedSymbols;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
+        private readonly ISettingsManager _settingsManager;
         private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         protected bool _isHandlingConnectionLost = false;
         protected int failedAttempts = 0;
@@ -37,9 +37,10 @@ namespace VisualHFT.Commons.PluginManager
 
         protected bool _disposed = false; // to track whether the object has been disposed
 
-        public BasePluginDataRetriever()
+        public BasePluginDataRetriever(ISettingsManager settingsManager)
         {
             // Ensure settings are loaded before starting
+            _settingsManager = settingsManager;
             LoadSettings();
             if (Settings == null)
                 throw new InvalidOperationException($"{Name} plugin settings has not been loaded.");
@@ -105,18 +106,18 @@ namespace VisualHFT.Commons.PluginManager
 
         protected void SaveToUserSettings(ISetting settings)
         {
-            if (UserSettings.SettingsManager.Instance == null)
+            if (_settingsManager == null)
                 return;
 
-            UserSettings.SettingsManager.Instance.SetSetting(SettingKey.PLUGIN, GetPluginUniqueID(), settings);
+            _settingsManager.SetSetting(SettingKey.PLUGIN, GetPluginUniqueID(), settings);
         }
 
         protected T? LoadFromUserSettings<T>() where T : class
         {
-            if (UserSettings.SettingsManager.Instance == null)
+            if (_settingsManager == null)
                 return null;
 
-            var jObject = UserSettings.SettingsManager.Instance.GetSetting<object>(SettingKey.PLUGIN, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
+            var jObject = _settingsManager.GetSetting<object>(SettingKey.PLUGIN, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
             if (jObject != null)
             {
                 return jObject.ToObject<T>();

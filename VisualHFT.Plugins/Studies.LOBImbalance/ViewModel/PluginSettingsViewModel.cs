@@ -234,7 +234,8 @@ namespace VisualHFT.Studies.LOBImbalance.ViewModel
             castedSetting.Provider.ProviderID = SelectedProviderID ?? 0;
             castedSetting.AggregationLevel = AggregationLevelSelection;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : settings event
+            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }
 }

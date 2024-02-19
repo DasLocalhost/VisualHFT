@@ -10,14 +10,5 @@ namespace VisualHFT.UserSettings
 {
     public static class SettingsManagerExtension
     {
-        public static void ShowMainSettings(this SettingsManager settingsManager)
-        {
-            var vm = new vmUserSettings();
-            var form = new View.UserSettings();
-
-            form.DataContext = vm;
-            vm.OnClose += (_, __) => form.Close();
-            form.ShowDialog();
-        }
     }
 }

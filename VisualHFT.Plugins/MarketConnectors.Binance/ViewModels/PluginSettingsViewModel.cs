@@ -252,7 +252,8 @@ namespace MarketConnectors.Binance.ViewModel
             castedSetting.UpdateIntervalMs = UpdateIntervalMs ?? 0;
             castedSetting.Provider.ProviderID = ProviderId ?? 0;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : replace with events to save settings and keep view models detached from settings manager
+            //_settingsManager.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }
 }

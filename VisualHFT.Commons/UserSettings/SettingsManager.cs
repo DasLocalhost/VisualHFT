@@ -13,9 +13,10 @@ namespace VisualHFT.UserSettings
             // To save settings
             SettingsManager.Instance.SaveSettings();     
      */
-    public class SettingsManager
+    public class SettingsManager : ISettingsManager
     {
-        private static readonly Lazy<SettingsManager> lazy = new Lazy<SettingsManager>(() => new SettingsManager());
+        #region Fields
+
         private string appDataPath;
         private string settingsFilePath;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -25,9 +26,11 @@ namespace VisualHFT.UserSettings
             TypeNameHandling = TypeNameHandling.Auto,
         };
 
+        #endregion
+
         public event EventHandler<IBaseSettings>? SettingsChanged;
 
-        public static SettingsManager Instance => lazy.Value;
+        //public static SettingsManager Instance => lazy.Value;
 
         public UserSettings? UserSettings { get; set; }
 
@@ -64,7 +67,10 @@ namespace VisualHFT.UserSettings
             }
 
             if (UserSettings != null)
+            {
                 UserSettings.SettingsChanged += (_, __) => SettingsChanged?.Invoke(this, __);
+                UserSettings.OnSave += (_, __) => Save();
+            }
         }
 
         private void SaveSettings()

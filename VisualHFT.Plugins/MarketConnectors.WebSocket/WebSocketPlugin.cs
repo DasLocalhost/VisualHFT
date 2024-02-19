@@ -45,7 +45,7 @@ namespace MarketConnectors.WebSocket
         JsonSerializerSettings? _parser_settings = null;
         ClientWebSocket? _ws;
 
-        public WebSocketPlugin()
+        public WebSocketPlugin(ISettingsManager settingsManager) : base(settingsManager)
         {
             _parser = new JsonParser();
             _parser_settings = new JsonSerializerSettings

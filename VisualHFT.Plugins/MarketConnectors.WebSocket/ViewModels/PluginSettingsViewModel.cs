@@ -175,7 +175,8 @@ namespace MarketConnectors.WebSocket.ViewModel
             castedSetting.Port = Port;
             castedSetting.Provider.ProviderID = ProviderId;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : event here
+            //SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }
 }

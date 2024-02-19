@@ -26,6 +26,7 @@ namespace VisualHFT.NotificationManager
     public class NotificationManager : INotificationManager
     {
         private readonly IPluginManager _pluginManager;
+        private readonly ISettingsManager _settingsManager;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #region Fields
@@ -45,9 +46,10 @@ namespace VisualHFT.NotificationManager
 
         #endregion
 
-        public NotificationManager(IPluginManager pluginManager)
+        public NotificationManager(IPluginManager pluginManager, ISettingsManager settingsManager)
         {
-            this._pluginManager = pluginManager;
+            _pluginManager = pluginManager;
+            _settingsManager = settingsManager;
         }
 
         /// <summary>
@@ -137,7 +139,7 @@ namespace VisualHFT.NotificationManager
                     continue;
                 }
 
-                var balancer = new NotificationBalancer(behaviour.Settings);
+                var balancer = new NotificationBalancer(behaviour.Settings, _settingsManager);
                 balancer.OnDequeue += Route;
 
                 _balancers.Add(balancer);
@@ -207,10 +209,10 @@ namespace VisualHFT.NotificationManager
             // Hardcoded now, could be reworked in same way as Plugins works, with dynamic uploading from dlls
             return new List<INotificationBehaviour>()
             {
-                { new ToastNotificationBehaviour() },
-                { new SlackNotificationBehaviour() },
-                { new ZapierNotificationBehaviour() },
-                { new TwitterNotificationBehaviour() },
+                { new ToastNotificationBehaviour(_settingsManager) },
+                { new SlackNotificationBehaviour(_settingsManager) },
+                { new ZapierNotificationBehaviour(_settingsManager) },
+                { new TwitterNotificationBehaviour(_settingsManager) },
             };
         }
 

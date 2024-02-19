@@ -24,6 +24,7 @@ namespace VisualHFT.NotificationManager
 
         private readonly string _behaviourId;
         private readonly BaseNotificationSettings _settings;
+        private readonly ISettingsManager _settingsManager;
         private ConcurrentQueue<INotification> _notificationsQueue = new ConcurrentQueue<INotification>();
 
         private Thread _processingThread;
@@ -56,7 +57,7 @@ namespace VisualHFT.NotificationManager
         /// </summary>
         public event EventHandler<IList<INotification>>? OnDequeue;
 
-        public NotificationBalancer(BaseNotificationSettings settings)
+        public NotificationBalancer(BaseNotificationSettings settings, ISettingsManager settingsManager)
         {
             _status = ProcessingStatus.NotInit;
 
@@ -64,11 +65,12 @@ namespace VisualHFT.NotificationManager
             _behaviourId = settings.BehaviourId;
 
             _settings = settings;
+            _settingsManager = settingsManager;
 
             _dequeueChunkSize = _settings.Threshold;
             _dequeueWaitInterwal = _settings.UpdateTime;
 
-            SettingsManager.Instance.SettingsChanged += SettingsChanged;
+            _settingsManager.SettingsChanged += SettingsChanged;
         }
 
         /// <summary>
@@ -171,7 +173,7 @@ namespace VisualHFT.NotificationManager
         public void Dispose()
         {
             // Unsubscribe from event
-            SettingsManager.Instance.SettingsChanged -= SettingsChanged;
+            _settingsManager.SettingsChanged -= SettingsChanged;
 
             // Stop prcessing thread if not null
             if (_processingThread != null)

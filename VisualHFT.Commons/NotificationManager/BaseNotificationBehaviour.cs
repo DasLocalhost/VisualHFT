@@ -9,10 +9,10 @@ namespace VisualHFT.Commons.NotificationManager
     // TODO : both for notifications and plugins, settings could be moved to SettingContainer abstract class - no need to write same code for each of them
     public abstract class BaseNotificationBehaviour : INotificationBehaviour
     {
-
         #region Fields
 
         protected BaseNotificationSettings? _settings = null;
+        private readonly ISettingsManager _settingsManager;
 
         #endregion
 
@@ -27,10 +27,14 @@ namespace VisualHFT.Commons.NotificationManager
 
         public string UniqueId => GetUniqueId();
         public virtual BaseNotificationSettings? Settings => _settings;
-
         public abstract void Send(INotification notification);
 
         #endregion
+
+        public BaseNotificationBehaviour(ISettingsManager settingsManager)
+        {
+            _settingsManager = settingsManager;
+        }
 
         public virtual void Init(List<IPlugin> plugins)
         {
@@ -52,7 +56,7 @@ namespace VisualHFT.Commons.NotificationManager
         // TODO : move to settings provider?
         protected T? LoadFromUserSettings<T>() where T : class
         {
-            var settingFromFile = SettingsManager.Instance.GetSetting<T>(SettingKey.NOTIFICATION, GetUniqueId());
+            var settingFromFile = _settingsManager.GetSetting<T>(SettingKey.NOTIFICATION, GetUniqueId());
 
             return settingFromFile;
         }
@@ -60,7 +64,7 @@ namespace VisualHFT.Commons.NotificationManager
         protected void SaveToUserSettings(IBaseSettings settings)
         {
             string header = GetUniqueId();
-            SettingsManager.Instance.SetSetting(SettingKey.NOTIFICATION, header, settings);
+            _settingsManager.SetSetting(SettingKey.NOTIFICATION, header, settings);
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace VisualHFT.NotificationManager.Slack
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
 
-        public SlackNotificationBehaviour()
+        public SlackNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
         {
             NotificationTargetName = "Slack Notifications";
             Version = "1.0.0.0";

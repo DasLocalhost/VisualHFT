@@ -14,11 +14,11 @@ using System.Windows.Controls;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.Commons.Studies;
-using VisualHFT.Commons.WPF.Helper;
 using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.DataRetriever;
 using VisualHFT.UserSettings;
 using VisualHFT.ViewModel;
+using VisualHFT.Commons.WPF.Helper;
 
 namespace VisualHFT.PluginManager
 {
@@ -30,6 +30,7 @@ namespace VisualHFT.PluginManager
         private object _locker = new object();
 
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly ISettingsManager _settingsManager;
 
         #endregion
 
@@ -42,7 +43,10 @@ namespace VisualHFT.PluginManager
 
         //public static PluginManager? Instance { get; private set; } = null;
 
-        public PluginManager() { }
+        public PluginManager(ISettingsManager settingsManager)
+        {
+            _settingsManager = settingsManager;
+        }
 
         public void Initialize()
         {
@@ -196,11 +200,9 @@ namespace VisualHFT.PluginManager
                     formSettings.ShowInTaskbar = false;
                     formSettings.ShowDialog();
                 }
-
             }
             catch (Exception ex)
             {
-
                 throw;
             }
         }
@@ -228,7 +230,7 @@ namespace VisualHFT.PluginManager
                     {
                         if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(IPlugin)))
                         {
-                            var plugin = Activator.CreateInstance(type) as IPlugin;
+                            var plugin = Activator.CreateInstance(type, _settingsManager) as IPlugin;
                             if (string.IsNullOrEmpty(plugin.Name))
                                 continue;
 

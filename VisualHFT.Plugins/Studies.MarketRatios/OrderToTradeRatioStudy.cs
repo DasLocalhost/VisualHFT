@@ -51,7 +51,7 @@ namespace VisualHFT.Studies
         public override string TileToolTip { get; set; } = "The <b>OTT</b> (Volume - Order To Trade Ratio) is a key metric used to evaluate trading behavior. <br/> It measures the number of orders placed relative to the number of trades executed. This ratio is often <b>monitored by regulatory bodies</b> to identify potentially manipulative or disruptive trading activities.<br/><br/>" +
                 "<b>OTT</b> is calculation as follows: <i>OTT Ratio  = Number of Orders Placed / Number of Executed Trades</i><br/>";
 
-        public OrderToTradeRatioStudy()
+        public OrderToTradeRatioStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
