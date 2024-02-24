@@ -90,8 +90,7 @@ namespace VisualHFT.NotificationManager.Zapier
         /// <exception cref="Exception"></exception>
         private void SetUpConnection()
         {
-            if (!(_settings is ZapierNotificationSetting zapierSettings))
-                throw new Exception();
+
         }
 
         private void ShowSimpleNotification(TextNotification textNotification, ZapierPluginNotificationSetting pluginSetting)

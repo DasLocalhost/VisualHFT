@@ -52,12 +52,6 @@ namespace VisualHFT.PluginManager
         {
             try
             {
-                // TODO : replace with custom exception
-                //if (Instance != null)
-                //    throw new Exception();
-
-                //Instance = new PluginManager();
-
                 AllPluginsReloaded = false;
                 LoadPlugins();
                 StartPlugins();
@@ -65,7 +59,7 @@ namespace VisualHFT.PluginManager
             }
             catch (Exception ex)
             {
-                // TODO : add logs here
+                log.Error("Plugins: Initialization failed.", ex);
             }
         }
 
@@ -173,7 +167,7 @@ namespace VisualHFT.PluginManager
 
             }
 
-
+            // TODO : replace this part with one above
             UserControl _ucSettings = null;
             try
             {

@@ -256,7 +256,7 @@ namespace VisualHFT.Studies.VPIN.ViewModel
             castedSetting.Provider.ProviderID = SelectedProviderID ?? 0;
             castedSetting.AggregationLevel = AggregationLevelSelection;
 
-            // TODO : event here
+            RaiseSettingsSaved(castedSetting);
             // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }

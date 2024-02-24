@@ -40,7 +40,6 @@ namespace VisualHFT.UserSettings
         {
             var group = ComponentSettings.FirstOrDefault(_ => _.SettingKey == key);
 
-            // TODO : add callback to logs
             if (group == null)
             {
                 log.Warn($"Settings: Setting group with [{key}] key is not found in User Settings.");

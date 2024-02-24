@@ -98,9 +98,7 @@ namespace VisualHFT.NotificationManager.Twitter
         /// <exception cref="Exception"></exception>
         private void SetUpConnection()
         {
-            // TODO : fix exception here.
-            if (_settings is not TwitterNotificationSetting twitterSettings)
-                throw new Exception();
+
         }
 
         /// <summary>

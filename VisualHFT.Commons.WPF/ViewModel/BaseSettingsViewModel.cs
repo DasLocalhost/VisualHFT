@@ -25,7 +25,7 @@ namespace VisualHFT.Commons.WPF.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             if (raiseSettingsChanged)
-                SettingChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                SettingsChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion
@@ -50,14 +50,19 @@ namespace VisualHFT.Commons.WPF.ViewModel
         /// <summary>
         /// Raise the event on any changes on UI. By default including to the INotifyPropertyChanged implementation.
         /// </summary>
-        public event EventHandler? SettingChanged;
+        public event EventHandler? SettingsChanged;
+
+        /// <summary>
+        /// Raise the event to save changed settings in settings manager.
+        /// </summary>
+        public event EventHandler<IBaseSettings>? SettingsSaved;
 
         public BaseSettingsViewModel(IBaseSettings setting, string header)
         {
             _setting = setting;
             Header = header;
 
-            this.SettingChanged += (_, __) => ContainsUnsavedChanges = true;
+            this.SettingsChanged += (_, __) => ContainsUnsavedChanges = true;
         }
 
         public void ResetStatus()
@@ -75,6 +80,15 @@ namespace VisualHFT.Commons.WPF.ViewModel
         /// Apply changes to the settings.
         /// </summary>
         public abstract void ApplyChanges();
+
+        /// <summary>
+        /// Method to raise the Settings Saved event from the implementations.
+        /// </summary>
+        /// <param name="settings"></param>
+        protected void RaiseSettingsSaved(IBaseSettings settings)
+        {
+            SettingsSaved?.Invoke(this, settings);
+        }
 
         public void Cancel()
         {

@@ -8,6 +8,7 @@ using VisualHFT.Commons.API.Twitter;
 using VisualHFT.Commons.Studies;
 using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.Helpers;
+using VisualHFT.NotificationManager.Slack;
 using VisualHFT.NotificationManager.Toast;
 using VisualHFT.NotificationManager.Twitter;
 using VisualHFT.UserSettings;
@@ -19,6 +20,8 @@ namespace VisualHFT.ViewModel.Settings
         private const string _defaultHeader = "Twitter Notifications";
 
         #region Fields
+
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private bool _isEnabled;
 
@@ -275,12 +278,17 @@ namespace VisualHFT.ViewModel.Settings
 
         public override void ApplyChanges()
         {
-            // TODO : logs / Exceptions here
             if (_setting is not TwitterPluginNotificationSetting castedSetting)
+            {
+                log.Error("Notifications: Can't cast Plugin-related settings to Twitter settings.");
                 return;
+            }
 
             if (SettingKey == null || SettingId == null)
+            {
+                log.Error($"Notifications: Can't save Twitter Plugin-related settings. Setting Key - [{SettingKey}]. Setting Id - [{SettingId}]");
                 return;
+            }
 
             castedSetting.ApiToken = ApiToken;
             castedSetting.ApiSecret = ApiSecret;
@@ -288,8 +296,8 @@ namespace VisualHFT.ViewModel.Settings
             castedSetting.AccessToken = AccessToken;
             castedSetting.AccessSecret = AccessSecret;
 
-            //castedSetting.TestPluginProperty = TestPluginProperty;
             castedSetting.IsEnabled = IsEnabled;
+
             castedSetting.UpdateInSource();
         }
     }

@@ -68,13 +68,6 @@ namespace VisualHFT
             }
         }
 
-        protected override void OnExit(ExitEventArgs e)
-        {
-            // TODO : cover unloads here
-            //PluginManager.PluginManager.Instance?.UnloadPlugins();
-            base.OnExit(e);
-        }
-
         private void LoadPlugins(IPluginManager pluginManager)
         {
             try
@@ -95,6 +88,27 @@ namespace VisualHFT
         {
             // TODO : add logs here
             notificationManager.Initialize();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            if (_container != null)
+            {
+                INotificationManager? notificationMgr;
+                if (_container.TryResolve(out notificationMgr))
+                {
+                    // TODO : Stop notifications here
+                    //notificationMgr
+                }
+
+                IPluginManager? pluginMgr;
+                if (_container.TryResolve(out pluginMgr))
+                {
+                    pluginMgr.UnloadPlugins();
+                }
+            }
+
+            base.OnExit(e);
         }
 
         private async Task GCCleanupAsync()

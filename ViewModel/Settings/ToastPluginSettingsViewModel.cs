@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuickFix;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -18,7 +19,8 @@ namespace VisualHFT.ViewModel.Settings
 
         #region Fields
 
-        private string? _testPluginProperty;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private bool _isEnabled;
         private bool _includeTimeStamp;
 
@@ -56,19 +58,6 @@ namespace VisualHFT.ViewModel.Settings
         }
 
         #endregion
-
-        public string? TestPluginProperty
-        {
-            get => _testPluginProperty;
-            set
-            {
-                if (_testPluginProperty != value)
-                {
-                    _testPluginProperty = value;
-                    RaisePropertyChanged();
-                }
-            }
-        }
 
         public bool IncludeTimeStamp
         { 
@@ -113,20 +102,22 @@ namespace VisualHFT.ViewModel.Settings
 
         public override void ApplyChanges()
         {
-            // TODO : logs / Exceptions here
             if (_setting is not ToastPluginNotificationSetting castedSetting)
+            {
+                log.Error("Notifications: Can't cast Plugin-related settings to Toast settings.");
                 return;
+            }
 
             if (SettingKey == null || SettingId == null)
+            {
+                log.Error($"Notifications: Can't save Toast Plugin-related settings. Setting Key - [{SettingKey}]. Setting Id - [{SettingId}]");
                 return;
+            }
 
             castedSetting.IncludeTimeStamp = IncludeTimeStamp;
             castedSetting.IsEnabled = IsEnabled;
 
-            // TODO : event here
-            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
-
-            //castedSetting.UpdateInSource();
+            castedSetting.UpdateInSource();
         }
     }
 }

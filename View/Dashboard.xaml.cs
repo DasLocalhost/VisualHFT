@@ -65,8 +65,6 @@ namespace VisualHFT
 
         private void ButtonAppSettings_Click(object sender, RoutedEventArgs e)
         {
-            // TODO : replace with UI helper call. It's not a settings manager's responsibility to generate UI
-            //_settingsManager.ShowMainSettings();
             UIHelper.ShowMainSettings(_settingsManager);
         }
 

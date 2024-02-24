@@ -92,9 +92,7 @@ namespace VisualHFT.NotificationManager.Slack
         /// <exception cref="Exception"></exception>
         private void SetUpConnection()
         {
-            // TODO : fix exception here.
-            if (_settings is not SlackNotificationSetting slackSettings)
-                throw new Exception();
+
         }
 
         /// <summary>

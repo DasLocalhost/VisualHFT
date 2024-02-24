@@ -107,7 +107,7 @@ namespace VisualHFT.NotificationManager.Toast
             if (useTime)
                 builder.AddText($"Time: {DateTime.Now}");
 
-            // TODO : test if this directive wors correctly on previous windows versions
+            // TODO : test if this directive works correctly on previous windows versions
 #if WINDOWS10_0_17763_0_OR_GREATER
             builder.Show();
 #else

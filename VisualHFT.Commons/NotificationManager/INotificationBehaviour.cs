@@ -19,7 +19,6 @@ namespace VisualHFT.Commons.NotificationManager
 
         BaseNotificationSettings? Settings { get; }
 
-        // TODO : maybe not standard settings, to be reviewed.
         /// <summary>
         /// Init behaviour using default settings.
         /// </summary>

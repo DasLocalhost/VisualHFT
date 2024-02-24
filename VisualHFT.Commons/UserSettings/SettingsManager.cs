@@ -30,8 +30,6 @@ namespace VisualHFT.UserSettings
 
         public event EventHandler<IBaseSettings>? SettingsChanged;
 
-        //public static SettingsManager Instance => lazy.Value;
-
         public UserSettings? UserSettings { get; set; }
 
         public string GetAllSettings()
@@ -45,7 +43,7 @@ namespace VisualHFT.UserSettings
                 return null;
         }
 
-        private SettingsManager()
+        public SettingsManager()
         {
             appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             settingsFilePath = Path.Combine(appDataPath, "VisualHFT", "settings.json");
