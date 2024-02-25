@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MarketConnectors.Binance.UserControls"
              mc:Ignorable="d" >
-    <Grid Margin="10">
+    <Grid Margin="20 10">
         <StackPanel>
             <Label Content="Provider ID" Margin="0,0"/>
             <TextBox Text="{Binding ProviderId, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />

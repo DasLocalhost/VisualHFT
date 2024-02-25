@@ -145,6 +145,7 @@ namespace VisualHFT.PluginManager
             }
         }
 
+        // TODO : probably could be simplified? we can raise a Settings UI for the plugin without using a plugin manager, from vm directly
         public void SettingPlugin(IPlugin plugin)
         {
             if (plugin == null)
@@ -152,52 +153,11 @@ namespace VisualHFT.PluginManager
 
             try
             {
-                var settings = UIHelper.GetSettingsUI(plugin);
-
-                if (settings == null || settings?.view is not UserControl view || settings?.vm is not IModularViewModel viewModel)
-                {
-                    log.Warn($"Plugins: Can't find Settings UI for [{plugin.Name}] plugin.");
-                    return;
-                }
-
-                view.DataContext = viewModel;
+                UIHelper.ShowCompactSettings(plugin);
             }
             catch (Exception ex)
             {
-
-            }
-
-            // TODO : replace this part with one above
-            UserControl _ucSettings = null;
-            try
-            {
-
-                if (plugin != null)
-                {
-                    var formSettings = new View.PluginSettings();
-                    plugin.CloseSettingWindow = () =>
-                    {
-                        formSettings.Close();
-                    };
-
-                    _ucSettings = plugin.GetUISettings() as UserControl;
-                    if (_ucSettings == null)
-                    {
-                        plugin.CloseSettingWindow = null;
-                        formSettings = null;
-                        return;
-                    }
-                    formSettings.MainGrid.Children.Add(_ucSettings);
-                    formSettings.Title = $"{plugin.Name} Settings";
-                    formSettings.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
-                    formSettings.Topmost = true;
-                    formSettings.ShowInTaskbar = false;
-                    formSettings.ShowDialog();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
+                log.Error($"Plugins: Failed to open modal settings view for [{plugin.Name}] plugin", ex);
             }
         }
 

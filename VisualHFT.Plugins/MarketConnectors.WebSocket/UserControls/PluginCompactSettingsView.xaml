@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:MarketConnectors.WebSocket.UserControls"
              d:Background="White"
              mc:Ignorable="d" >
-    <Grid Margin="10">
+    <Grid Margin="20 10">
         <StackPanel>
             <Label Content="Provider ID" Margin="0,0"/>
             <TextBox Text="{Binding ProviderId, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Margin="0,5" />

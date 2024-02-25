@@ -1,14 +1,14 @@
-﻿using VisualHFT.Helpers;
+﻿using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Prism.Mvvm;
 using System.Linq;
-using VisualHFT.Commons.Studies;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Data;
 using VisualHFT.Commons.PluginManager;
+using VisualHFT.Commons.Studies;
+using VisualHFT.Helpers;
+using VisualHFT.PluginManager;
 
 namespace VisualHFT.ViewModel
 {
@@ -54,19 +54,36 @@ namespace VisualHFT.ViewModel
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     //first, load single studies
-                    foreach (var study in _pluginManager.AllPlugins.Where(x => x is IStudy && x.GetCustomUI() == null))
+                    foreach (var study in _pluginManager.AllPlugins.OfType<IStudy>())
                     {
-                        Tiles.Add(new vmTile(study as IStudy, _pluginManager));
+                        var customTile = VisualHFT.Commons.WPF.Helper.UIHelper.GetPluginTile(study);
+
+                        if (customTile == null || !customTile.IsValid<vmTile>())
+                        {
+                            Tiles.Add(new vmTile(study, _pluginManager));
+                        }
                     }
+
                     //then, load multi-studies
-                    foreach (var study in _pluginManager.AllPlugins.Where(x => x is IMultiStudy && x.GetCustomUI() == null))
+                    foreach (var multiStudy in _pluginManager.AllPlugins.OfType<IMultiStudy>())
                     {
-                        Tiles.Add(new vmTile(study as IMultiStudy, _pluginManager));
+                        var customTile = VisualHFT.Commons.WPF.Helper.UIHelper.GetPluginTile(multiStudy);
+
+                        if (customTile == null || !customTile.IsValid<vmTile>())
+                        {
+                            Tiles.Add(new vmTile(multiStudy, _pluginManager));
+                        }
                     }
                     //then, load custom UIs
-                    foreach (var study in _pluginManager.AllPlugins.Where(x => x is PluginManager.IPlugin && x.GetCustomUI() != null))
+                    foreach (var plugin in _pluginManager.AllPlugins.OfType<IPlugin>())
                     {
-                        Tiles.Add(new vmTile(study as PluginManager.IPlugin, _pluginManager));
+                        var customTile = VisualHFT.Commons.WPF.Helper.UIHelper.GetPluginTile(plugin);
+
+                        // TODO : cover custom UI here
+                        if (customTile != null && customTile.IsValid<vmTile>())
+                        {
+                            Tiles.Add(new vmTile(plugin, _pluginManager));
+                        }
                     }
                 });
             }
@@ -75,7 +92,6 @@ namespace VisualHFT.ViewModel
                 throw;
             }
         }
-
 
         public ObservableCollection<vmTile> Tiles
         {

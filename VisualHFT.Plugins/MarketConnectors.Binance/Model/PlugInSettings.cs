@@ -1,13 +1,10 @@
-﻿using CryptoExchange.Net.CommonObjects;
+﻿using MarketConnectors.Binance.UserControls;
+using MarketConnectors.Binance.ViewModel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
-using MarketConnectors.Binance.ViewModel;
-using MarketConnectors.Binance.UserControls;
 
 namespace MarketConnectors.Binance.Model
 {
@@ -15,6 +12,16 @@ namespace MarketConnectors.Binance.Model
     [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
         public List<string> Symbols { get; set; }

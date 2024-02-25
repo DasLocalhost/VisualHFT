@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using VisualHFT.UserSettings;
+﻿using MarketConnectors.WebSocket.UserControls;
 using MarketConnectors.WebSocket.ViewModel;
-using MarketConnectors.WebSocket.UserControls;
-using VisualHFT.Commons.WPF.ViewModel;
+using Newtonsoft.Json;
+using VisualHFT.Commons.WPF.ViewMapping;
+using VisualHFT.UserSettings;
 
 namespace MarketConnectors.WebSocket.Model
 {
@@ -10,6 +10,15 @@ namespace MarketConnectors.WebSocket.Model
     [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
         public required string HostName { get; set; }
         public required int Port { get; set; }
         public int ProviderId { get; set; }

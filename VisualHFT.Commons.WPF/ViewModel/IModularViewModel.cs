@@ -12,8 +12,19 @@ namespace VisualHFT.Commons.WPF.ViewModel
     /// </summary>
     public interface IModularViewModel
     {
-        ICommand CloseCommand { get; }
+        /// <summary>
+        /// Command to apply changes and close a modal window
+        /// </summary>
+        ICommand OkCommand { get; }
 
+        /// <summary>
+        /// Command to close a modal window without saving changes
+        /// </summary>
+        ICommand CancelCommand { get; }
+
+        /// <summary>
+        /// Close event to close modal window
+        /// </summary>
         public event EventHandler OnClose;
     }
 }

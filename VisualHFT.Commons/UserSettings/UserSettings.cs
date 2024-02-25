@@ -322,6 +322,12 @@ namespace VisualHFT.UserSettings
 
                         containers.Add(new SettingContainer(container.Key, setting));
 
+                        if (container.Value is IBaseSettings settings)
+                        {
+                            settings.SettingKey = key;
+                            settings.SettingId = container.Key;
+                        }
+
                         if (container.Value is BaseNotificationSettings notificationSetting)
                         {
                             if (notificationSetting.PluginSettings != null)

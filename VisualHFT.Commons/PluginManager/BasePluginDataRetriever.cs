@@ -114,16 +114,9 @@ namespace VisualHFT.Commons.PluginManager
 
         protected T? LoadFromUserSettings<T>() where T : class
         {
-            if (_settingsManager == null)
-                return null;
-
-            var jObject = _settingsManager.GetSetting<object>(SettingKey.PLUGIN, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
-            if (jObject != null)
-            {
-                return jObject.ToObject<T>();
-            }
-            return null;
+            return _settingsManager.GetSetting<T>(SettingKey.PLUGIN, GetPluginUniqueID());
         }
+
         public virtual string GetPluginUniqueID()
         {
             // Get the fully qualified name of the assembly
@@ -144,12 +137,11 @@ namespace VisualHFT.Commons.PluginManager
                 return builder.ToString();
             }
         }
-        public abstract object GetUISettings(); //using object type because this csproj doesn't support UI
+
         public virtual object GetCustomUI()
         {
             return null;
         }
-
 
         #region Symbol Normalization functions
         // 1. Parsing Method

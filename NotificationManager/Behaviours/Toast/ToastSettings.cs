@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
@@ -45,6 +40,16 @@ namespace VisualHFT.NotificationManager.Toast
     [DefaultSettingsView(typeof(ToastPluginSettingsViewModel), typeof(ToastPluginSettingsView))]
     public class ToastPluginNotificationSetting : IPluginNotificationSettings
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         /// <summary>
         /// True if we need to include a time stamp to notification.
         /// </summary>

@@ -58,14 +58,10 @@ namespace VisualHFT.Commons.PluginManager
         {
             _settingsManager.SetSetting(SettingKey.TILE_STUDY, GetPluginUniqueID(), settings);
         }
-        protected T LoadFromUserSettings<T>() where T : class
+
+        protected T? LoadFromUserSettings<T>() where T : class
         {
-            var jObject = _settingsManager.GetSetting<object>(SettingKey.TILE_STUDY, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
-            if (jObject != null)
-            {
-                return jObject.ToObject<T>();
-            }
-            return null;
+            return _settingsManager.GetSetting<T>(SettingKey.TILE_STUDY, GetPluginUniqueID());
         }
 
         protected virtual void Dispose(bool disposing)

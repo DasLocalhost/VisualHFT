@@ -165,11 +165,14 @@ namespace VisualHFT.ViewModel
             // Get settings UI from metadata
             var mappedUI = Commons.WPF.Helper.UIHelper.GetSettingsUI(setting);
 
-            if (mappedUI == null || mappedUI?.view is not UserControl view || mappedUI?.vm is not BaseSettingsViewModel viewModel)
+            if (mappedUI == null)
                 return null;
 
-            viewModel.SettingKey = key;
-            viewModel.SettingId = id;
+            if (!mappedUI.IsValid<BaseSettingsViewModel>())
+                return null;
+
+            var view = mappedUI.View as UserControl;
+            var viewModel = mappedUI.ViewModel as BaseSettingsViewModel;
 
             viewModel.SettingsChanged += SettingsChanged;
             viewModel.SettingsSaved += SettingsSaved;

@@ -58,6 +58,12 @@ namespace VisualHFT.ViewModel.Settings
                 && string.IsNullOrEmpty(this[nameof(UpdateTime)]);
         }
 
+        protected override bool CanExecuteOkCommand(object obj)
+        {
+            return string.IsNullOrEmpty(this[nameof(Threshold)])
+                && string.IsNullOrEmpty(this[nameof(UpdateTime)]);
+        }
+
         public override void ApplyChanges()
         {
             // TODO : logs / Exceptions here

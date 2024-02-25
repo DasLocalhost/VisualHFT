@@ -217,35 +217,6 @@ namespace VisualHFT.Studies
             };
             SaveToUserSettings(_settings);
         }
-        public override object GetUISettings()
-        {
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            //viewModel.BucketVolumeSize = _settings.BucketVolSize;
-            //viewModel.SelectedSymbol = _settings.Symbol;
-            //viewModel.SelectedProviderID = _settings.Provider.ProviderID;
-            //viewModel.AggregationLevelSelection = _settings.AggregationLevel;
-
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //    _settings.BucketVolSize = viewModel.BucketVolumeSize;
-                //    _settings.Symbol = viewModel.SelectedSymbol;
-                //    _settings.Provider = viewModel.SelectedProvider;
-                //    _settings.AggregationLevel = viewModel.AggregationLevelSelection;
-
-                //    SaveSettings();
-
-                // Start the Reconnection 
-                //  It will allow to reload with the new values
-                Task.Run(() =>
-                {
-                    ResetBucket();
-                });
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
-        }
 
         /// <summary>
         /// Example how to send notifications

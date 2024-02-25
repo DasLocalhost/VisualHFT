@@ -89,11 +89,6 @@ namespace VisualHFT.Commons.PluginManager
                 return builder.ToString();
             }
         }
-        public abstract object GetUISettings(); //using object type because this csproj doesn't support UI
-        public virtual object GetCustomUI()
-        {
-            return null;
-        }
 
         protected virtual void Dispose(bool disposing)
         {

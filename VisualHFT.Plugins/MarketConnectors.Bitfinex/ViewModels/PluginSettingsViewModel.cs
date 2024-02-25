@@ -86,8 +86,6 @@ namespace MarketConnectors.Bitfinex.ViewModel
         private List<string> _symbols;
         private string _symbolsText;
         private string _validationMessage;
-        private string _successMessage;
-        private Action _actionCloseWindow;
 
         #endregion
 
@@ -178,24 +176,10 @@ namespace MarketConnectors.Bitfinex.ViewModel
             set { _validationMessage = value; RaisePropertyChanged(raiseSettingsChanged: false); }
         }
 
-        public string SuccessMessage
-        {
-            get { return _successMessage; }
-            set { _successMessage = value; RaisePropertyChanged(raiseSettingsChanged: false); }
-        }
-
         #endregion
-
-        public ICommand OkCommand { get; private set; }
-        public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
 
         public PluginSettingsViewModel(PlugInSettings settings) : base(settings, _defaultHeader)
         {
-            //OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
-            //CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
-            //_actionCloseWindow = actionCloseWindow;
-
             _apiSecret = settings.ApiSecret;
             _apiKey = settings.ApiKey;
             _depthLevels = settings.DepthLevels;
@@ -210,6 +194,17 @@ namespace MarketConnectors.Bitfinex.ViewModel
             return string.IsNullOrWhiteSpace(this[nameof(SymbolsText)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(DepthLevels)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(UpdateIntervalMs)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ProviderId)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
+        }
+
+        protected override bool CanExecuteOkCommand(object obj)
+        {
+            // This checks if any validation message exists for any of the properties
+            return string.IsNullOrWhiteSpace(this[nameof(ApiKey)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ApiSecret)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(SymbolsText)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(DepthLevels)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(ProviderId)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
         }
@@ -231,31 +226,6 @@ namespace MarketConnectors.Bitfinex.ViewModel
 
             RaiseSettingsSaved(castedSetting);
             //SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
-        }
-
-        private void ExecuteOkCommand(object obj)
-        {            
-            SuccessMessage = "Settings saved successfully!";
-            UpdateSettingsFromUI?.Invoke();
-            _actionCloseWindow?.Invoke();
-        }
-        private void ExecuteCancelCommand(object obj)
-        {
-            _actionCloseWindow?.Invoke();
-        }
-        private bool CanExecuteOkCommand(object obj)
-        {
-            // This checks if any validation message exists for any of the properties
-            return string.IsNullOrWhiteSpace(this[nameof(ApiKey)]) &&
-                   string.IsNullOrWhiteSpace(this[nameof(ApiSecret)]) &&
-                   string.IsNullOrWhiteSpace(this[nameof(SymbolsText)]) &&
-                   string.IsNullOrWhiteSpace(this[nameof(DepthLevels)]) &&
-                   string.IsNullOrWhiteSpace(this[nameof(ProviderId)]) &&
-                   string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
-        }
-        private void RaiseCanExecuteChanged()
-        {
-            (OkCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
         }
     }
 }

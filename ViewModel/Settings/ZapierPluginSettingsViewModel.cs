@@ -8,6 +8,7 @@ using VisualHFT.NotificationManager.Slack;
 using VisualHFT.NotificationManager.Toast;
 using VisualHFT.NotificationManager.Zapier;
 using VisualHFT.UserSettings;
+using static log4net.Appender.RollingFileAppender;
 
 namespace VisualHFT.ViewModel.Settings
 {
@@ -98,6 +99,11 @@ namespace VisualHFT.ViewModel.Settings
         }
 
         public override bool CheckIfValid()
+        {
+            return true;
+        }
+
+        protected override bool CanExecuteOkCommand(object obj)
         {
             return true;
         }

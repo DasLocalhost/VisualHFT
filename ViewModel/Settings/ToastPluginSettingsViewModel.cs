@@ -100,6 +100,11 @@ namespace VisualHFT.ViewModel.Settings
             return true;
         }
 
+        protected override bool CanExecuteOkCommand(object obj)
+        {
+            return true;
+        }
+
         public override void ApplyChanges()
         {
             if (_setting is not ToastPluginNotificationSetting castedSetting)

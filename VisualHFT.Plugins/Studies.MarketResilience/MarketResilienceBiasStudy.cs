@@ -127,26 +127,5 @@ namespace VisualHFT.Studies
             };
             SaveToUserSettings(_settings);
         }
-        public override object GetUISettings()
-        {
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            //viewModel.SelectedSymbol = _settings.Symbol;
-            //viewModel.SelectedProviderID = _settings.Provider.ProviderID;
-            //viewModel.AggregationLevelSelection = _settings.AggregationLevel;
-
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //_settings.Symbol = viewModel.SelectedSymbol;
-                //_settings.Provider = viewModel.SelectedProvider;
-                //_settings.AggregationLevel = viewModel.AggregationLevelSelection;
-
-                //SaveSettings();
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
-        }
-
     }
 }

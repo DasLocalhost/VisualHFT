@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
@@ -44,6 +39,16 @@ namespace VisualHFT.NotificationManager.Twitter
     [DefaultSettingsView(typeof(TwitterPluginSettingsViewModel), typeof(TwitterPluginSettingsView))]
     public class TwitterPluginNotificationSetting : IPluginNotificationSettings
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         #region Properties
 
         public string? ApiToken { get; set; }

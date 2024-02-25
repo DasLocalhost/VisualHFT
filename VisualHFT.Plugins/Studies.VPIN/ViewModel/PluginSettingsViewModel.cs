@@ -64,7 +64,6 @@ namespace VisualHFT.Studies.VPIN.ViewModel
 
         private string _validationMessage = string.Empty;
         private string _successMessage = string.Empty;
-        private Action _actionCloseWindow;
 
         #endregion
 
@@ -142,16 +141,8 @@ namespace VisualHFT.Studies.VPIN.ViewModel
 
         #endregion
 
-        public ICommand OkCommand { get; private set; }
-        public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI { get; set; }
-
         public PluginSettingsViewModel(PlugInSettings settings) : base(settings, _defaultHeader)
         {
-            //OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
-            //CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
-            //_actionCloseWindow = actionCloseWindow;
-
             _symbols = new ObservableCollection<string>(HelperSymbol.Instance);
             _providers = Provider.CreateObservableCollection();
             RaisePropertyChanged(nameof(Providers));
@@ -186,28 +177,12 @@ namespace VisualHFT.Studies.VPIN.ViewModel
                    string.IsNullOrWhiteSpace(this[nameof(SelectedSymbol)]);
         }
 
-        private void ExecuteOkCommand(object obj)
-        {
-            SuccessMessage = "Settings saved successfully!";
-            UpdateSettingsFromUI?.Invoke();
-            _actionCloseWindow?.Invoke();
-        }
-        private void ExecuteCancelCommand(object obj)
-        {
-            _actionCloseWindow?.Invoke();
-        }
-        private bool CanExecuteOkCommand(object obj)
+        protected override bool CanExecuteOkCommand(object obj)
         {
             // This checks if any validation message exists for any of the properties
             return // string.IsNullOrWhiteSpace(this[nameof(BucketVolumeSize)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(SelectedProvider)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(SelectedSymbol)]);
-
-        }
-
-        private void RaiseCanExecuteChanged()
-        {
-            (OkCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
         }
 
         private void LoadSelectedProviderID()

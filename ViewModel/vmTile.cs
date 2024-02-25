@@ -47,7 +47,8 @@ namespace VisualHFT.ViewModel
         public vmTile(PluginManager.IPlugin plugin, IPluginManager pluginManager)
         {
             _plugin = plugin;
-            _customControl = _plugin.GetCustomUI() as UserControl;
+            // TODO : check if custom UI should be applied here
+            //_customControl = _plugin.GetCustomUI() as UserControl;
             _pluginManager = pluginManager;
             IsUserControl = _customControl != null;
 

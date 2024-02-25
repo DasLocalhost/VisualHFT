@@ -83,8 +83,6 @@ namespace MarketConnectors.Binance.ViewModel
         private List<string>? _symbols;
         private string? _symbolsText;
         private string? _validationMessage;
-        private string? _successMessage;
-        private Action? _actionCloseWindow;
 
         #endregion
 
@@ -179,29 +177,11 @@ namespace MarketConnectors.Binance.ViewModel
                 RaisePropertyChanged(raiseSettingsChanged: false);
             }
         }
-        public string? SuccessMessage
-        {
-            get { return _successMessage; }
-            set
-            {
-                _successMessage = value;
-                RaisePropertyChanged(raiseSettingsChanged: false);
-            }
-        }
 
         #endregion
 
-        public ICommand? OkCommand { get; private set; }
-        public ICommand? CancelCommand { get; private set; }
-
-        public Action? UpdateSettingsFromUI { get; set; }
-
         public PluginSettingsViewModel(PlugInSettings settings) : base(settings, _defaultHeader)
         {
-            //OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
-            //CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
-            //_actionCloseWindow = actionCloseWindow;
-
             _apiKey = settings.ApiKey;
             _apiSecret = settings.ApiSecret;
             _symbolsText = settings.Symbol;
@@ -221,19 +201,14 @@ namespace MarketConnectors.Binance.ViewModel
                    string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
         }
 
-        private void ExecuteOkCommand(object obj)
+        protected override bool CanExecuteOkCommand(object obj)
         {
-            SuccessMessage = "Settings saved successfully!";
-            UpdateSettingsFromUI?.Invoke();
-            _actionCloseWindow?.Invoke();
-        }
-        private void ExecuteCancelCommand(object obj)
-        {
-            _actionCloseWindow?.Invoke();
-        }
-        private void RaiseCanExecuteChanged()
-        {
-            (OkCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
+            // This checks if any validation message exists for any of the properties
+            return string.IsNullOrWhiteSpace(this[nameof(SymbolsText)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(DepthLevels)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(UpdateIntervalMs)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ProviderId)]) &&
+                   string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
         }
 
         public override void ApplyChanges()

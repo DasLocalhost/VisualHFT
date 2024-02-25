@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.Model;
-using VisualHFT.UserSettings;
 using VisualHFT.Studies.VPIN.UserControls;
 using VisualHFT.Studies.VPIN.ViewModel;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.UserSettings;
 
 namespace VisualHFT.Studies.VPIN.Model
 {
@@ -11,6 +11,16 @@ namespace VisualHFT.Studies.VPIN.Model
     [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         public double BucketVolSize { get; set; }
         public string Symbol { get; set; }
         public Provider Provider { get; set; }
