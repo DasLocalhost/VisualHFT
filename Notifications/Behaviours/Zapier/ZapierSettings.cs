@@ -4,7 +4,7 @@ using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
 
-namespace VisualHFT.NotificationManager.Zapier
+namespace VisualHFT.Notifications.Zapier
 {
     /// <summary>
     /// Global settings for Zapier notifications. 

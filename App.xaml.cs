@@ -12,6 +12,11 @@ using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
+using VisualHFT.Notifications;
+using VisualHFT.Notifications.Slack;
+using VisualHFT.Notifications.Toast;
+using VisualHFT.Notifications.Twitter;
+using VisualHFT.Notifications.Zapier;
 
 namespace VisualHFT
 {
@@ -47,8 +52,25 @@ namespace VisualHFT
                 .OnActivated(_ => LoadPlugins(_.Instance))
                 .AutoActivate();
 
+            // Register notification behaviours
+            builder.RegisterType<SlackNotificationBehaviour>()
+                .As<INotificationBehaviour>()
+                .OnActivating(_ => _.Instance.Initialize());
+
+            builder.RegisterType<ToastNotificationBehaviour>()
+                .As<INotificationBehaviour>()
+                .OnActivating(_ => _.Instance.Initialize());
+
+            builder.RegisterType<TwitterNotificationBehaviour>()
+                .As<INotificationBehaviour>()
+                .OnActivating(_ => _.Instance.Initialize());
+
+            builder.RegisterType<ZapierNotificationBehaviour>()
+                .As<INotificationBehaviour>()
+                .OnActivating(_ => _.Instance.Initialize());
+
             // Register notification manager
-            builder.RegisterType<NotificationManager.NotificationManager>()
+            builder.RegisterType<NotificationManager>()
                 .As<INotificationManager>()
                 .SingleInstance()
                 .OnActivated(_ => SetupNotifications(_.Instance))

@@ -1,46 +1,44 @@
-﻿using System;
+﻿using QuickFix;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using VisualHFT.Commons.API.Slack;
-using VisualHFT.Commons.API.Twitter;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Zapier;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Twitter
+namespace VisualHFT.Notifications.Slack
 {
     /// <summary>
-    /// Notifications logic for Twitter notifications.
+    /// Notifications logic for Slack notifications.
     /// </summary>
-    [Settings(typeof(TwitterNotificationSetting))]
-    public class TwitterNotificationBehaviour : BaseNotificationBehaviour
+    [Settings(typeof(SlackNotificationSetting))]
+    public class SlackNotificationBehaviour : BaseNotificationBehaviour
     {
-        #region Fields
-
-        private TwitterClient? _client;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
 
-        #endregion
+        public SlackNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
+        {
+            NotificationTargetName = "Slack Notifications";
+            Version = "1.0.0.0";
+        }
 
         #region BaseNotificationBehavior implementation
+        
+        public override SlackNotificationSetting? Settings => _settings as SlackNotificationSetting;
 
-        public override TwitterNotificationSetting? Settings => _settings as TwitterNotificationSetting;
-
-        public override void Init(List<IPlugin> plugins)
+        public override void Initialize()
         {
             // Code to init a behaviour
-            base.Init(plugins);
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
 
             SetUpConnection();
+
+            log.Debug($"Notifications: [{NotificationTargetName}] behavior initialized successfully.");
         }
 
         public override void Send(INotification notification)
@@ -54,7 +52,7 @@ namespace VisualHFT.NotificationManager.Twitter
                 return;
             }
 
-            var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as TwitterPluginNotificationSetting;
+            var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as SlackPluginNotificationSetting;
             if (pluginSetting == null)
             {
                 log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
@@ -77,7 +75,7 @@ namespace VisualHFT.NotificationManager.Twitter
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new TwitterNotificationSetting(GetUniqueId(), NotificationTargetName);
+            var settings = new SlackNotificationSetting(GetUniqueId(), NotificationTargetName);
 
             SaveToUserSettings(settings);
 
@@ -85,12 +83,6 @@ namespace VisualHFT.NotificationManager.Twitter
         }
 
         #endregion
-
-        public TwitterNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
-        {
-            NotificationTargetName = "Twitter Notifications";
-            Version = "1.0.0.0";
-        }
 
         /// <summary>
         /// Set up the initial connection to the target system. Any kinds of token-checking methods should be placed here.
@@ -106,32 +98,26 @@ namespace VisualHFT.NotificationManager.Twitter
         /// </summary>
         /// <param name="textNotification">Notification to send</param>
         /// <param name="pluginSetting">Plugin-related notification system</param>
-        private void ShowSimpleNotification(TextNotification textNotification, TwitterPluginNotificationSetting pluginSetting)
+        private void ShowSimpleNotification(TextNotification textNotification, SlackPluginNotificationSetting pluginSetting)
         {
-            if (pluginSetting.AccessToken == null)
+            if (pluginSetting.Token == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty access token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{NotificationTargetName}] has an empty token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
-            if (pluginSetting.AccessSecret == null)
+            if (pluginSetting.Channel == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty access secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
-                return;
-            };
-            if (pluginSetting.ApiToken == null)
-            {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty api token name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
-                return;
-            };
-            if (pluginSetting.ApiSecret == null)
-            {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty api secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{NotificationTargetName}] has an empty channel name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
 
-            var client = new TwitterClient(pluginSetting.ApiToken, pluginSetting.ApiSecret, pluginSetting.AccessToken, pluginSetting.AccessSecret);
+            var client = new SlackClient(pluginSetting.Token);
 
-            client.Send(new TwitterMessage() { Text = textNotification.Text });
+            client.Send(new SlackMessage()
+            {
+                Channel = pluginSetting.Channel,
+                Text = textNotification.Text
+            });
         }
     }
 }

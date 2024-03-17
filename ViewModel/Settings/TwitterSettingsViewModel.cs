@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Twitter;
-using VisualHFT.UserSettings;
+﻿using VisualHFT.Notifications.Twitter;
 
 namespace VisualHFT.ViewModel.Settings
 {

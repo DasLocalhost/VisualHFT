@@ -22,7 +22,7 @@ namespace VisualHFT.Commons.NotificationManager
         /// <summary>
         /// Init behaviour using default settings.
         /// </summary>
-        void Init(List<IPlugin> plugins);
+        void Initialize();
 
         /// <summary>
         /// Render the notification in the target system.

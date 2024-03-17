@@ -1,17 +1,13 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager
+namespace VisualHFT.Notifications
 {
     /// <summary>
     /// Balancer that is controlling how often notifications are raised to target system (like Twitter, Win Toast etc)

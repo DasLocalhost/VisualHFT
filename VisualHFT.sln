@@ -24,11 +24,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.VPIN", "VisualHFT.P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualHFT.Commons.WPF", "VisualHFT.Commons.WPF\VisualHFT.Commons.WPF.csproj", "{62BF162D-118E-426C-8B96-1A1612E0A346}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.LOBImbalance", "VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj", "{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.LOBImbalance", "VisualHFT.Plugins\Studies.LOBImbalance\Studies.LOBImbalance.csproj", "{74B08F14-A2A1-43A1-8DBF-CA9F19F9B8E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketResilience", "VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj", "{AE79F03E-98FF-4730-BEFE-76204BFD7707}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.MarketResilience", "VisualHFT.Plugins\Studies.MarketResilience\Studies.MarketResilience.csproj", "{AE79F03E-98FF-4730-BEFE-76204BFD7707}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studies.MarketRatios", "VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj", "{23E6F0D7-139B-48B7-8234-3D415D06B35A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Studies.MarketRatios", "VisualHFT.Plugins\Studies.MarketRatios\Studies.MarketRatios.csproj", "{23E6F0D7-139B-48B7-8234-3D415D06B35A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualHFT.Test", "VisualHFT.Test\VisualHFT.Test.csproj", "{4454C1C0-683C-438F-9F83-99A43A204392}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +82,9 @@ Global
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23E6F0D7-139B-48B7-8234-3D415D06B35A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4454C1C0-683C-438F-9F83-99A43A204392}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4454C1C0-683C-438F-9F83-99A43A204392}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4454C1C0-683C-438F-9F83-99A43A204392}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Zapier;
-using VisualHFT.UserSettings;
+﻿using VisualHFT.Notifications.Zapier;
 
 namespace VisualHFT.ViewModel.Settings
 {

@@ -1,6 +1,7 @@
 ﻿using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
@@ -12,7 +13,8 @@ namespace VisualHFT.Commons.NotificationManager
         #region Fields
 
         protected BaseNotificationSettings? _settings = null;
-        private readonly ISettingsManager _settingsManager;
+        protected readonly ISettingsManager _settingsManager;
+        protected readonly IPluginManager _pluginManager;
 
         #endregion
 
@@ -31,12 +33,13 @@ namespace VisualHFT.Commons.NotificationManager
 
         #endregion
 
-        public BaseNotificationBehaviour(ISettingsManager settingsManager)
+        public BaseNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager)
         {
             _settingsManager = settingsManager;
+            _pluginManager = pluginManager;
         }
 
-        public virtual void Init(List<IPlugin> plugins)
+        public virtual void Initialize()
         {
             LoadSettings();
         }

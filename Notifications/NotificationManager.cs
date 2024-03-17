@@ -1,24 +1,15 @@
-﻿using log4net.Core;
-using log4net.Plugin;
-using QuickFix;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using VisualHFT.Commons.NotificationManager;
-using VisualHFT.Commons.NotificationManager.Notifications;
 using VisualHFT.Commons.PluginManager;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Twitter;
-using VisualHFT.NotificationManager.Zapier;
-using VisualHFT.PluginManager;
+using VisualHFT.Notifications.Slack;
+using VisualHFT.Notifications.Toast;
+using VisualHFT.Notifications.Twitter;
+using VisualHFT.Notifications.Zapier;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager
+namespace VisualHFT.Notifications
 {
     /// <summary>
     /// Manager to route notifications from plugins to different behaviours.
@@ -32,6 +23,7 @@ namespace VisualHFT.NotificationManager
         #region Fields
 
         private List<NotificationBalancer>? _balancers;
+        private IEnumerable<INotificationBehaviour> _behaviorsList;
         private Dictionary<string, INotificationBehaviour>? _behaviours;
         private List<PluginRouting>? _routingMap;
 
@@ -46,10 +38,11 @@ namespace VisualHFT.NotificationManager
 
         #endregion
 
-        public NotificationManager(IPluginManager pluginManager, ISettingsManager settingsManager)
+        public NotificationManager(IEnumerable<INotificationBehaviour> behaviors, IPluginManager pluginManager, ISettingsManager settingsManager)
         {
             _pluginManager = pluginManager;
             _settingsManager = settingsManager;
+            _behaviorsList = behaviors;
         }
 
         /// <summary>
@@ -104,20 +97,7 @@ namespace VisualHFT.NotificationManager
             if (_pluginManager == null)
                 throw new Exception("Can't initialized behaviors - PluginManager instance is null. Check the initialization order.");
 
-            var behavioursList = GetBehaviours();
-            _behaviours = behavioursList.ToDictionary(_ => _.UniqueId);
-
-            foreach (var behaviour in _behaviours.Values)
-            {
-                try
-                {
-                    behaviour.Init(_pluginManager.AllPlugins);
-                }
-                catch (Exception ex)
-                {
-                    log.Error($"Notifications: Failed to init [{behaviour.NotificationTargetName}] behavior.", ex);
-                }
-            }
+            _behaviours = _behaviorsList.ToDictionary(_ => _.UniqueId);
         }
 
         /// <summary>
@@ -200,26 +180,7 @@ namespace VisualHFT.NotificationManager
             }
         }
 
-        /// <summary>
-        /// Get the list of notifications behaviours.
-        /// </summary>
-        /// <returns>List of available notifications behaviours.</returns>
-        private List<INotificationBehaviour> GetBehaviours()
-        {
-            // Hardcoded now, could be reworked in same way as Plugins works, with dynamic uploading from dlls
-            return new List<INotificationBehaviour>()
-            {
-                { new ToastNotificationBehaviour(_settingsManager) },
-                { new SlackNotificationBehaviour(_settingsManager) },
-                { new ZapierNotificationBehaviour(_settingsManager) },
-                { new TwitterNotificationBehaviour(_settingsManager) },
-            };
-        }
-
         #endregion
-
-        private int _raisedCount = 0;
-        private int _routedCount = 0;
 
         /// <summary>
         /// Route the notification from the source to processor.
@@ -230,8 +191,6 @@ namespace VisualHFT.NotificationManager
         {
             try
             {
-                _raisedCount++;
-
                 // In the case of extending - use another interface instead of IPlugin. Unique Id feature should be implemented for this interface.
                 if (source is not PluginManager.IPlugin plugin)
                     return;

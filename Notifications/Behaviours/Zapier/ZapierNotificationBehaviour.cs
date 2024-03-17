@@ -1,46 +1,39 @@
-﻿using QuickFix;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.API.Slack;
+﻿using System;
+using VisualHFT.Commons.API.Zapier;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Zapier;
-using VisualHFT.PluginManager;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Slack
+namespace VisualHFT.Notifications.Zapier
 {
     /// <summary>
-    /// Notifications logic for Slack notifications.
+    /// Notifications logic for Zapier notifications.
     /// </summary>
-    [Settings(typeof(SlackNotificationSetting))]
-    public class SlackNotificationBehaviour : BaseNotificationBehaviour
+    [Settings(typeof(ZapierNotificationSetting))]
+    public class ZapierNotificationBehaviour : BaseNotificationBehaviour
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
 
-        public SlackNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
+        public ZapierNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Slack Notifications";
+            NotificationTargetName = "Zapier Notifications";
             Version = "1.0.0.0";
         }
 
         #region BaseNotificationBehavior implementation
-        
-        public override SlackNotificationSetting? Settings => _settings as SlackNotificationSetting;
 
-        public override void Init(List<IPlugin> plugins)
+        public override ZapierNotificationSetting? Settings => _settings as ZapierNotificationSetting;
+
+        public override void Initialize()
         {
             // Code to init a behaviour
-            base.Init(plugins);
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
 
             SetUpConnection();
-
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior initialized successfully.");
         }
 
         public override void Send(INotification notification)
@@ -54,7 +47,7 @@ namespace VisualHFT.NotificationManager.Slack
                 return;
             }
 
-            var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as SlackPluginNotificationSetting;
+            var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as ZapierPluginNotificationSetting;
             if (pluginSetting == null)
             {
                 log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
@@ -77,7 +70,7 @@ namespace VisualHFT.NotificationManager.Slack
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new SlackNotificationSetting(GetUniqueId(), NotificationTargetName);
+            var settings = new ZapierNotificationSetting(GetUniqueId(), NotificationTargetName);
 
             SaveToUserSettings(settings);
 
@@ -95,29 +88,19 @@ namespace VisualHFT.NotificationManager.Slack
 
         }
 
-        /// <summary>
-        /// Send the simple text notification to the target system.
-        /// </summary>
-        /// <param name="textNotification">Notification to send</param>
-        /// <param name="pluginSetting">Plugin-related notification system</param>
-        private void ShowSimpleNotification(TextNotification textNotification, SlackPluginNotificationSetting pluginSetting)
+        private void ShowSimpleNotification(TextNotification textNotification, ZapierPluginNotificationSetting pluginSetting)
         {
-            if (pluginSetting.Token == null)
+            if (pluginSetting.FullWebHookUrl == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
-                return;
-            };
-            if (pluginSetting.Channel == null)
-            {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty channel name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{NotificationTargetName}] has an web hook url for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
 
-            var client = new SlackClient(pluginSetting.Token);
+            var client = new ZapierClient(pluginSetting.FullWebHookUrl);
 
-            client.Send(new SlackMessage()
+            client?.Send(new ZapierMessage()
             {
-                Channel = pluginSetting.Channel,
+                Header = textNotification.Title,
                 Text = textNotification.Text
             });
         }

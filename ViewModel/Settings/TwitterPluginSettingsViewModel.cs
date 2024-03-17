@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using VisualHFT.Commons.API.Twitter;
-using VisualHFT.Commons.Studies;
 using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.Helpers;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Twitter;
+using VisualHFT.Notifications.Twitter;
 using VisualHFT.UserSettings;
-using static log4net.Appender.RollingFileAppender;
 
 namespace VisualHFT.ViewModel.Settings
 {

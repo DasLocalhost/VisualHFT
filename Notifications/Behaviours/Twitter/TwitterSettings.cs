@@ -4,30 +4,28 @@ using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
 
-namespace VisualHFT.NotificationManager.Slack
+namespace VisualHFT.Notifications.Twitter
 {
     /// <summary>
-    /// Global settings for Slack notifications. 
+    /// Global settings for Twitter notifications. 
     /// </summary>
-    [DefaultSettingsView(typeof(SlackSettingsViewModel), typeof(SlackSettingsView))]
-    public class SlackNotificationSetting : BaseNotificationSettings
+    [DefaultSettingsView(typeof(TwitterSettingsViewModel), typeof(TwitterSettingsView))]
+    public class TwitterNotificationSetting : BaseNotificationSettings
     {
         /// <summary>
         /// Default header to be shown on UI.
         /// </summary>
-        private const string _defaultHeader = "Slack Notifications";
+        private const string _defaultHeader = "Twitter Notifications";
 
-        public SlackNotificationSetting(string behaviourId, string? targetName) : base(_defaultHeader, targetName, behaviourId) { }
+        public TwitterNotificationSetting(string behaviourId, string? targetName) : base(_defaultHeader, targetName, behaviourId) { }
 
         #region BaseNotificationSettings implementation
 
         protected override IPluginNotificationSettings GetDefaultPluginBasedSettings(string pluginId)
         {
-            return new SlackPluginNotificationSetting(this)
+            return new TwitterPluginNotificationSetting(this)
             {
                 IsEnabled = false,
-                Channel = string.Empty,
-                Token = string.Empty,
                 PluginId = pluginId
             };
         }
@@ -36,10 +34,10 @@ namespace VisualHFT.NotificationManager.Slack
     }
 
     /// <summary>
-    /// Plugin-related settings for Slack notifications. 
+    /// Plugin-related settings for Twitter notifications. 
     /// </summary>
-    [DefaultSettingsView(typeof(SlackPluginSettingsViewModel), typeof(SlackPluginSettingsView))]
-    public class SlackPluginNotificationSetting : IPluginNotificationSettings
+    [DefaultSettingsView(typeof(TwitterPluginSettingsViewModel), typeof(TwitterPluginSettingsView))]
+    public class TwitterPluginNotificationSetting : IPluginNotificationSettings
     {
         #region IBaseSettings implementation
 
@@ -51,14 +49,17 @@ namespace VisualHFT.NotificationManager.Slack
 
         #endregion
 
-        /// <summary>
-        /// Id of Slack channel to send notifications.
-        /// </summary>
-        public string? Channel { get; set; }
-        /// <summary>
-        /// App-level token of Slack bot app.
-        /// </summary>
-        public string? Token { get; set; }
+        #region Properties
+
+        public string? ApiToken { get; set; }
+        public string? ApiSecret { get; set; }
+        public string? OAuthToken { get; set; }
+        public string? OAuthSecret { get; set; }
+        public string? AuthVerifier { get; set; }
+        public string? AccessToken { get; set; }
+        public string? AccessSecret { get; set;}
+
+        #endregion
 
         #region IPluginNotificationSettings implementation
 
@@ -76,7 +77,7 @@ namespace VisualHFT.NotificationManager.Slack
 
         #endregion
 
-        public SlackPluginNotificationSetting(SlackNotificationSetting parentSettings)
+        public TwitterPluginNotificationSetting(TwitterNotificationSetting parentSettings)
         {
             ParentSettings = parentSettings;
         }

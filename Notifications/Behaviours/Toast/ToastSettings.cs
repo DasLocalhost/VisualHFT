@@ -4,7 +4,7 @@ using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
 
-namespace VisualHFT.NotificationManager.Toast
+namespace VisualHFT.Notifications.Toast
 {
     /// <summary>
     /// Global settings for Win Toast notifications. 

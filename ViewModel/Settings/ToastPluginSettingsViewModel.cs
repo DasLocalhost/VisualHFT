@@ -1,15 +1,7 @@
-﻿using QuickFix;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using VisualHFT.Commons.WPF.ViewModel;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
+using VisualHFT.Notifications.Toast;
 using VisualHFT.UserSettings;
-using static log4net.Appender.RollingFileAppender;
 
 namespace VisualHFT.ViewModel.Settings
 {

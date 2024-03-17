@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.UserSettings;
+﻿using VisualHFT.Notifications.Toast;
 
 namespace VisualHFT.ViewModel.Settings
 {

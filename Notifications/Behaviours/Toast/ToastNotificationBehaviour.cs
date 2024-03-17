@@ -1,22 +1,11 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Twitter;
-using VisualHFT.PluginManager;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Toast
+namespace VisualHFT.Notifications.Toast
 {
     /// <summary>
     /// Notifications logic for Windows toast notifications.
@@ -30,7 +19,7 @@ namespace VisualHFT.NotificationManager.Toast
 
         #endregion
 
-        public ToastNotificationBehaviour(ISettingsManager settingsManager) : base(settingsManager)
+        public ToastNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
             NotificationTargetName = "Windows 10 Toast Notifications";
             Version = "1.0.0.0";
@@ -40,9 +29,12 @@ namespace VisualHFT.NotificationManager.Toast
 
         public override ToastNotificationSetting? Settings => _settings as ToastNotificationSetting;
 
-        public override void Init(List<IPlugin> plugins)
+        public override void Initialize()
         {
-            base.Init(plugins);
+            // Code to init a behaviour
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
         }
 

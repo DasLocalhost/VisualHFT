@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static log4net.Appender.RollingFileAppender;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.UserSettings;
+﻿using VisualHFT.Notifications.Slack;
 
 namespace VisualHFT.ViewModel.Settings
 {
