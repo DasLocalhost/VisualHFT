@@ -46,10 +46,5 @@ namespace VisualHFT.Test
             _container = builder.Build();
         }
 
-        [Test]
-        public void Test()
-        {
-
-        }
     }
 }

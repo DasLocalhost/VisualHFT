@@ -13,6 +13,16 @@ namespace VisualHFT.Test.Mockups
 
         public event EventHandler<IBaseSettings>? SettingsChanged;
 
+        public SettingsManagerMockup()
+        {
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
+
+        }
+
         public T? GetSetting<T>(SettingKey key, string id) where T : class
         {
 

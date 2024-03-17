@@ -138,6 +138,7 @@ namespace VisualHFT.Notifications
             _balancers.ForEach(_ => _.Start());
         }
 
+        // TODO : implement logic to update routing if settings changed
         /// <summary>
         /// Prepare a mapping for fast routing notifications from plugins to enabled notifications behaviours.
         /// </summary>
