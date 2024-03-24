@@ -160,7 +160,7 @@ namespace VisualHFT.Notifications
                 {
                     if (behav.Settings is null)
                     {
-                        log.Warn($"Notifications: can't make a routing for [{behav.NotificationTargetName}] behavior - behavior settings are null.");
+                        log.Warn($"Notifications: can't make a routing for [{behav.TargetName}] behavior - behavior settings are null.");
                         continue;
                     }
 
@@ -242,7 +242,7 @@ namespace VisualHFT.Notifications
                 if (behaviour == null)
                     throw new Exception($"Failed to route notifications: unknown behavior found [{balancer.BehaviourId}]");
 
-                log.Debug($"Notifications: New notifications chunk ({notifications.Count}) routed for [{behaviour.NotificationTargetName}] target.");
+                log.Debug($"Notifications: New notifications chunk ({notifications.Count}) routed for [{behaviour.TargetName}] target.");
 
                 foreach (var notification in notifications)
                     behaviour?.Send(notification);

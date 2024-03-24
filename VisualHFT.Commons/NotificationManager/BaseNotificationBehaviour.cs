@@ -20,7 +20,8 @@ namespace VisualHFT.Commons.NotificationManager
 
         #region Properties
 
-        public string? NotificationTargetName { get; protected set; }
+        public string? TargetName { get; protected set; }
+        public string? ShortTargetName { get; protected set; }
         public string? Version { get; protected set; }
 
         #endregion
@@ -42,6 +43,20 @@ namespace VisualHFT.Commons.NotificationManager
         public virtual void Initialize()
         {
             LoadSettings();
+
+            UpdateStrings();
+        }
+
+        private void UpdateStrings()
+        {
+            if (_settings == null)
+                return;
+
+            if (_settings.TargetName == null)
+                _settings.TargetName = TargetName;
+
+            if (_settings.ShortTargetName == null)
+                _settings.ShortTargetName = ShortTargetName;
         }
 
         protected void LoadSettings()
@@ -80,7 +95,7 @@ namespace VisualHFT.Commons.NotificationManager
             string? assemblyName = GetType().Assembly.FullName;
 
             // Concatenate the attributes
-            string combinedAttributes = $"{NotificationTargetName}{Version}{assemblyName}";
+            string combinedAttributes = $"{TargetName}{Version}{assemblyName}";
 
             // Compute the SHA256 hash
             using (SHA256 sha256 = SHA256.Create())

@@ -26,7 +26,12 @@ namespace VisualHFT.UserSettings
         /// <summary>
         /// Name of the notifications target system.
         /// </summary>
-        public string? TargetName { get; }
+        public string? TargetName { get; set; }
+
+        /// <summary>
+        /// Compact name of the notifications target system.
+        /// </summary>
+        public string? ShortTargetName { get; set; }
 
         /// <summary>
         /// Id of related notifications behavior.

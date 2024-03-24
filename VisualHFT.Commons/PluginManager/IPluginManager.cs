@@ -18,5 +18,7 @@ namespace VisualHFT.Commons.PluginManager
         void StopPlugin(IPlugin plugin);
         void SettingPlugin(IPlugin plugin);
         void UnloadPlugins();
+
+        string? GetPluginName(string? id);
     }
 }

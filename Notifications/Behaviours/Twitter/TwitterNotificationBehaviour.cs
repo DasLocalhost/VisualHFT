@@ -37,19 +37,19 @@ namespace VisualHFT.Notifications.Twitter
 
         public override void Send(INotification notification)
         {
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior received a new notification.");
+            log.Debug($"Notifications: [{TargetName}] behavior received a new notification.");
 
             // If settings are not init yet - skip the notification
             if (_settings == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] is not initialized properly. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] is not initialized properly. Received notification will be skipped.");
                 return;
             }
 
             var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as TwitterPluginNotificationSetting;
             if (pluginSetting == null)
             {
-                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
+                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{TargetName}] behavior. Received notification will be skipped.");
                 return;
             }
 
@@ -69,7 +69,7 @@ namespace VisualHFT.Notifications.Twitter
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new TwitterNotificationSetting(GetUniqueId(), NotificationTargetName);
+            var settings = new TwitterNotificationSetting(GetUniqueId(), TargetName);
 
             SaveToUserSettings(settings);
 
@@ -80,7 +80,8 @@ namespace VisualHFT.Notifications.Twitter
 
         public TwitterNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Twitter Notifications";
+            TargetName = "Twitter Notifications";
+            ShortTargetName = "Twitter";
             Version = "1.0.0.0";
         }
 
@@ -102,22 +103,22 @@ namespace VisualHFT.Notifications.Twitter
         {
             if (pluginSetting.AccessToken == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty access token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty access token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.AccessSecret == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty access secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty access secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.ApiToken == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty api token name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty api token name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.ApiSecret == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty api secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty api secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
 

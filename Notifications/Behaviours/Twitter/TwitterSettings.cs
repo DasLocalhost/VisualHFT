@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
@@ -26,7 +27,9 @@ namespace VisualHFT.Notifications.Twitter
             return new TwitterPluginNotificationSetting(this)
             {
                 IsEnabled = false,
-                PluginId = pluginId
+                PluginId = pluginId,
+                Threshold = 1,
+                ThresholdRule = ThresholdRule.Less
             };
         }
 
@@ -64,6 +67,8 @@ namespace VisualHFT.Notifications.Twitter
         #region IPluginNotificationSettings implementation
 
         public bool IsEnabled { get; set; }
+        public double? Threshold { get; set; }
+        public ThresholdRule ThresholdRule { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }

@@ -216,5 +216,18 @@ namespace VisualHFT.PluginManager
                 log.Error(e.PluginName, e.Exception);
             }
         }
+
+        public string? GetPluginName(string? id)
+        {
+            if (id == null)
+                return null;
+
+            var plugin = AllPlugins.FirstOrDefault(_ => _.GetPluginUniqueID() == id);
+
+            if (plugin == null)
+                return null;
+
+            return plugin.Name;
+        }
     }
 }

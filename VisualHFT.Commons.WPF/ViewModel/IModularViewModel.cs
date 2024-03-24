@@ -25,6 +25,6 @@ namespace VisualHFT.Commons.WPF.ViewModel
         /// <summary>
         /// Close event to close modal window
         /// </summary>
-        public event EventHandler OnClose;
+        public event EventHandler? OnClose;
     }
 }

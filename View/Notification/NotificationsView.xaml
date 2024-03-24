@@ -1,0 +1,140 @@
+﻿<UserControl x:Class="VisualHFT.View.Notification.NotificationsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mrk="clr-namespace:VisualHFT.Commons.WPF.MarkupExt;assembly=VisualHFT.Commons.WPF"
+        xmlns:cnm="clr-namespace:VisualHFT.Commons.NotificationManager;assembly=VisualHFT.Commons"
+        xmlns:vm="clr-namespace:VisualHFT.ViewModel.Notification"
+        xmlns:coll="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+        xmlns:local="clr-namespace:VisualHFT.View"
+        xmlns:conv="clr-namespace:VisualHFT.Converters"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:beh="clr-namespace:VisualHFT.Commons.WPF.Behaviours;assembly=VisualHFT.Commons.WPF"
+        
+        xmlns:materialDesign="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+        xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{StaticResource MaterialDesignFont}"
+        
+        mc:Ignorable="d"
+        Height="750" Width="900">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../GlobalStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Margin="10" FontSize="24" Text="Notifications" />
+
+        <ListView Grid.Row="1" Margin="5 10" d:ItemsSource="{d:SampleData ItemCount=10}" ItemsSource="{Binding Notifications}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal" />
+                                            <VisualState x:Name="MouseOver">
+                                                <Storyboard>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border" 
+                                                                                  Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
+                                                        <EasingColorKeyFrame KeyTime="0" Value="LightGray" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Disabled" />
+                                        </VisualStateGroup>
+                                        <VisualStateGroup x:Name="SelectionStates">
+                                            <VisualState x:Name="Unselected" />
+                                            <VisualState x:Name="Selected" />
+                                            <VisualState x:Name="SelectedUnfocused" />
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+                    <GridViewColumn Header="PlugIn" DisplayMemberBinding="{Binding PluginName}" Width="260" />
+                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding TargetType}" Width="120" />
+                    <GridViewColumn Header="Threshold" Width="130">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Threshold}" HorizontalContentAlignment="Center" MinWidth="100" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Threshold Rule">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox DisplayMemberPath="DisplayName" ItemsSource="{mrk:EnumAsItemSource {x:Type cnm:ThresholdRule}}"
+                                          SelectedValue="{Binding ThresholdRule}" SelectedValuePath="Value"
+                                          MinWidth="120" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Active" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsEnabled="False" IsChecked="{Binding IsActive}" Margin="0, 0, 10, 0">
+                                        <CheckBox.Style>
+                                            <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
+                                                 
+                                            </Style>
+                                        </CheckBox.Style>
+                                    </CheckBox>
+                                    <Grid>
+                                        <Button Content="▶" d:Visibility="Visible" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}"
+                                                Command="{Binding DataContext.ResumeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
+                                                CommandParameter="{Binding}" Margin="0 0 10 0" Width="42" Padding="0" />
+                                        <Button Content="⏸" d:Visibility="Collapsed" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Command="{Binding DataContext.PauseCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
+                                                CommandParameter="{Binding}" Margin="0 0 10 0" Width="42" Padding="0" />
+                                    </Grid>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Label Content="{Binding ValidationMessage}" d:Content="Test validation error message" Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 20 0" />
+            <Button Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Width="200" Height="50" Margin="10" Content="Save" Command="{Binding SaveCommand}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

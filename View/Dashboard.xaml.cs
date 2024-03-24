@@ -1,4 +1,5 @@
 ﻿using VisualHFT.Helpers;
+using Wpf = VisualHFT.Commons.WPF.Helper;
 using VisualHFT.View;
 using System;
 using System.Linq;
@@ -18,6 +19,10 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Windows.Markup;
 using VisualHFT.Commons.PluginManager;
+using VisualHFT.View.Notification;
+using VisualHFT.ViewModel.Notification;
+using VisualHFT.Commons.NotificationManager;
+using VisualHFT.Notifications;
 
 namespace VisualHFT
 {
@@ -28,11 +33,13 @@ namespace VisualHFT
     {
         private readonly IPluginManager _pluginManager;
         private readonly ISettingsManager _settingsManager;
+        private readonly INotificationManager _notificationManager;
 
-        public Dashboard(IPluginManager pluginManager, ISettingsManager settingsManager)
+        public Dashboard(IPluginManager pluginManager, ISettingsManager settingsManager, INotificationManager notificationManager)
         {
             _pluginManager = pluginManager;
             _settingsManager = settingsManager;
+            _notificationManager = notificationManager;
 
             FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement),
                 new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name)));
@@ -66,6 +73,15 @@ namespace VisualHFT
         private void ButtonAppSettings_Click(object sender, RoutedEventArgs e)
         {
             UIHelper.ShowMainSettings(_settingsManager);
+        }
+
+        private void ButtonNotifications_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO : need more generic way to open dialogs
+            var control = new NotificationsView();
+            var vm = new NotificationsViewModel(_pluginManager, _settingsManager, _notificationManager);
+
+            Wpf.UIHelper.ShowDialog(control, vm);
         }
 
         private void ButtonMultiVenuePrices_Click(object sender, RoutedEventArgs e)

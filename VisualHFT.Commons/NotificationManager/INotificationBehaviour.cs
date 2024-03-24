@@ -15,7 +15,7 @@ namespace VisualHFT.Commons.NotificationManager
     public interface INotificationBehaviour
     {
         string UniqueId { get; }
-        string? NotificationTargetName { get; }
+        string? TargetName { get; }
 
         BaseNotificationSettings? Settings { get; }
 

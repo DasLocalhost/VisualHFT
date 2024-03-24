@@ -50,7 +50,7 @@ namespace VisualHFT.Test.Mockups
     {
         public string UniqueId => "NotificationBehaviourMockup";
 
-        public string? NotificationTargetName => "NotificationTargetName";
+        public string? TargetName => "NotificationTargetName";
 
         public BaseNotificationSettings? Settings => throw new NotImplementedException();
 

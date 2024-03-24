@@ -13,7 +13,7 @@ namespace VisualHFT.Test.Mockups
     {
         public string UniqueId => throw new NotImplementedException();
 
-        public string? NotificationTargetName { get; set; } = "Mockup";
+        public string? TargetName { get; set; } = "Mockup";
 
         public BaseNotificationSettings? Settings => throw new NotImplementedException();
 

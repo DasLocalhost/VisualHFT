@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
@@ -21,6 +22,7 @@ namespace VisualHFT.Notifications.Toast
 
         #region BaseNotificationSettings implementation
 
+        // TODO : maybe moved from settings file to plugin? plugin will decide what is a standard Threshold and Rule
         protected override IPluginNotificationSettings GetDefaultPluginBasedSettings(string pluginId)
         {
             return new ToastPluginNotificationSetting(this)
@@ -28,6 +30,8 @@ namespace VisualHFT.Notifications.Toast
                 IsEnabled = false,
                 IncludeTimeStamp = false,
                 PluginId = pluginId,
+                Threshold = 1,
+                ThresholdRule = ThresholdRule.Less
             };
         }
 
@@ -56,7 +60,10 @@ namespace VisualHFT.Notifications.Toast
         public bool IncludeTimeStamp { get; set; }
 
         #region IPluginNotificationSettings implementation
+
         public bool IsEnabled { get; set; }
+        public double? Threshold { get; set; }
+        public ThresholdRule ThresholdRule { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }

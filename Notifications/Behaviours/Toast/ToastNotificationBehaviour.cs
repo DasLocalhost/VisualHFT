@@ -21,7 +21,8 @@ namespace VisualHFT.Notifications.Toast
 
         public ToastNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Windows 10 Toast Notifications";
+            TargetName = "Windows 10 Toast Notifications";
+            ShortTargetName = "Win Toast";
             Version = "1.0.0.0";
         }
 
@@ -40,19 +41,19 @@ namespace VisualHFT.Notifications.Toast
 
         public override void Send(INotification notification)
         {
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior received a new notification.");
+            log.Debug($"Notifications: [{TargetName}] behavior received a new notification.");
 
             // If settings are not init yet - skip the notification
             if (_settings == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] is not initialized properly. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] is not initialized properly. Received notification will be skipped.");
                 return;
             }
 
             var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as ToastPluginNotificationSetting;
             if (pluginSetting == null)
             {
-                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
+                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{TargetName}] behavior. Received notification will be skipped.");
                 return;
             }
 
@@ -73,7 +74,7 @@ namespace VisualHFT.Notifications.Toast
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new ToastNotificationSetting(GetUniqueId(), NotificationTargetName)
+            var settings = new ToastNotificationSetting(GetUniqueId(), TargetName)
             {
                 Threshold = 5,
                 UpdateTime = 100

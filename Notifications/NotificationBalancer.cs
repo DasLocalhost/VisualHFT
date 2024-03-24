@@ -9,6 +9,7 @@ using VisualHFT.UserSettings;
 
 namespace VisualHFT.Notifications
 {
+    // TODO : need to improve balancer. It should be able to set status (Pause, Run, Stop) for each Plugin currently in processing.
     /// <summary>
     /// Balancer that is controlling how often notifications are raised to target system (like Twitter, Win Toast etc)
     /// </summary>
