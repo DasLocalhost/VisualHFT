@@ -234,6 +234,9 @@ namespace VisualHFT.UserSettings
             {
                 var settingsDict = serializer.Deserialize<UserSettingsDictionary>(reader);
 
+                if (settingsDict == null || settingsDict.ComponentSettings.Count == 0 || settingsDict.Settings.Count == 0)
+                    return null;
+
                 return UserSettingsDictionary.To(settingsDict);
             }
             catch

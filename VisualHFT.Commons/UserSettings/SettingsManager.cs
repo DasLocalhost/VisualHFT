@@ -64,7 +64,11 @@ namespace VisualHFT.UserSettings
                 catch
                 {
                     // TODO : add logs
-                    UserSettings = new UserSettings();
+                }
+                finally
+                {
+                    if (UserSettings == null)
+                        UserSettings = new UserSettings();
                 }
             }
             else
