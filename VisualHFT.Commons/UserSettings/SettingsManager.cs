@@ -56,8 +56,16 @@ namespace VisualHFT.UserSettings
             // Deserialize from JSON file
             if (File.Exists(settingsFilePath))
             {
-                string json = File.ReadAllText(settingsFilePath);
-                UserSettings = JsonConvert.DeserializeObject<UserSettings>(json, _serializerSettings);
+                try
+                {
+                    string json = File.ReadAllText(settingsFilePath);
+                    UserSettings = JsonConvert.DeserializeObject<UserSettings>(json, _serializerSettings);
+                }
+                catch
+                {
+                    // TODO : add logs
+                    UserSettings = new UserSettings();
+                }
             }
             else
             {

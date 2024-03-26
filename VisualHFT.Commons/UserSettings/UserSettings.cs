@@ -230,9 +230,17 @@ namespace VisualHFT.UserSettings
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            var settingsDict = serializer.Deserialize<UserSettingsDictionary>(reader);
+            try
+            {
+                var settingsDict = serializer.Deserialize<UserSettingsDictionary>(reader);
 
-            return UserSettingsDictionary.To(settingsDict);
+                return UserSettingsDictionary.To(settingsDict);
+            }
+            catch
+            {
+                // TODO : add logs here
+                return null;
+            }
         }
 
         public override bool CanConvert(Type objectType)
