@@ -30,8 +30,10 @@ namespace VisualHFT.Notifications.Slack
                 Channel = string.Empty,
                 Token = string.Empty,
                 PluginId = pluginId,
-                Threshold = 1,
-                ThresholdRule = ThresholdRule.Greater
+                AboveThreshold = 0,
+                AboveThresholdEnabled = false,
+                BelowThreshold = 0,
+                BelowThresholdEnabled = false
             };
         }
 
@@ -66,8 +68,10 @@ namespace VisualHFT.Notifications.Slack
         #region IPluginNotificationSettings implementation
 
         public bool IsEnabled { get; set; }
-        public double? Threshold { get; set; }
-        public ThresholdRule ThresholdRule { get; set; }
+        public double? AboveThreshold { get; set; }
+        public bool AboveThresholdEnabled { get; set; }
+        public double? BelowThreshold { get; set; }
+        public bool BelowThresholdEnabled { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }

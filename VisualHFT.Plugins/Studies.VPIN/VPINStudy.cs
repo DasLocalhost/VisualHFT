@@ -146,12 +146,12 @@ namespace VisualHFT.Studies
             if (isNewBucket)
             {
                 valueColor = "Green";
-                // Check against threshold and trigger alert
-                if (vpin > VPIN_THRESHOLD)
-                    Notify("New VPin!", $"{vpin} | {VPIN_THRESHOLD}");
                 //OnAlertTriggered?.Invoke(this, vpin);
                 ResetBucket();
             }
+            // Check against threshold and trigger alert
+            //if (vpin > VPIN_THRESHOLD)
+            Notify("New VPin!", $"{vpin} | {VPIN_THRESHOLD}", (double)vpin);
             // Add to rolling window and remove oldest if size exceeded
             var newItem = new BaseStudyModel();
             newItem.Value = vpin;
@@ -218,14 +218,15 @@ namespace VisualHFT.Studies
             SaveToUserSettings(_settings);
         }
 
+        // TODO : change documentation
         /// <summary>
         /// Example how to send notifications
         /// </summary>
         /// <param name="subject">Notification's title</param>
         /// <param name="value">Notification's text</param>
-        private void Notify(string subject, object value)
+        private void Notify(string subject, object text, double value)
         {
-            var notification = new TextNotification(subject, $"{value}")
+            var notification = new TextNotification(subject, $"{text}", value)
                 .FromPlugin("VPINStudy", GetPluginUniqueID())
                 .SetConcatenation(Concatenation.Simple);
 

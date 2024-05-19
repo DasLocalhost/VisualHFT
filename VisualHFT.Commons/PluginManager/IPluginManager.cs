@@ -20,5 +20,6 @@ namespace VisualHFT.Commons.PluginManager
         void UnloadPlugins();
 
         string? GetPluginName(string? id);
+        bool? IsPluginStudy(string? id);
     }
 }

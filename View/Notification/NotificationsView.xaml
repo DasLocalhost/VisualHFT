@@ -42,99 +42,125 @@
 
         <TextBlock Margin="10" FontSize="24" Text="Notifications" />
 
-        <ListView Grid.Row="1" Margin="5 10" d:ItemsSource="{d:SampleData ItemCount=10}" ItemsSource="{Binding Notifications}">
+        <ListView x:Name="lvMain" Grid.Row="1" Margin="5 10" d:ItemsSource="{d:SampleData ItemCount=2}" ItemsSource="{Binding PluginsView}" ScrollViewer.CanContentScroll="False">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                                    <VisualStateManager.VisualStateGroups>
-                                        <VisualStateGroup x:Name="CommonStates">
-                                            <VisualState x:Name="Normal" />
-                                            <VisualState x:Name="MouseOver">
-                                                <Storyboard>
-                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border" 
-                                                                                  Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
-                                                        <EasingColorKeyFrame KeyTime="0" Value="LightGray" />
-                                                    </ColorAnimationUsingKeyFrames>
-                                                </Storyboard>
-                                            </VisualState>
-                                            <VisualState x:Name="Disabled" />
-                                        </VisualStateGroup>
-                                        <VisualStateGroup x:Name="SelectionStates">
-                                            <VisualState x:Name="Unselected" />
-                                            <VisualState x:Name="Selected" />
-                                            <VisualState x:Name="SelectedUnfocused" />
-                                        </VisualStateGroup>
-                                    </VisualStateManager.VisualStateGroups>
-                                    <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.View>
-                <GridView>
-                    <GridView.ColumnHeaderContainerStyle>
-                        <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
-                    </GridView.ColumnHeaderContainerStyle>
-                    <GridViewColumn Header="PlugIn" DisplayMemberBinding="{Binding PluginName}" Width="260" />
-                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding TargetType}" Width="120" />
-                    <GridViewColumn Header="Threshold" Width="130">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBox Text="{Binding Threshold}" HorizontalContentAlignment="Center" MinWidth="100" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Threshold Rule">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <ComboBox DisplayMemberPath="DisplayName" ItemsSource="{mrk:EnumAsItemSource {x:Type cnm:ThresholdRule}}"
-                                          SelectedValue="{Binding ThresholdRule}" SelectedValuePath="Value"
-                                          MinWidth="120" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Active" Width="150">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsEnabled="False" IsChecked="{Binding IsActive}" Margin="0, 0, 10, 0">
-                                        <CheckBox.Style>
-                                            <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
-                                                 
-                                            </Style>
-                                        </CheckBox.Style>
-                                    </CheckBox>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Expander Header="{Binding PluginName}" d:IsExpanded="True" IsExpanded="False">
+                            <Expander.HeaderTemplate>
+                                <DataTemplate>
                                     <Grid>
-                                        <Button Content="▶" d:Visibility="Visible" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}"
-                                                Command="{Binding DataContext.ResumeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
-                                                CommandParameter="{Binding}" Margin="0 0 10 0" Width="42" Padding="0" />
-                                        <Button Content="⏸" d:Visibility="Collapsed" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                Command="{Binding DataContext.PauseCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=ListView}}" 
-                                                CommandParameter="{Binding}" Margin="0 0 10 0" Width="42" Padding="0" />
+                                        <TextBlock Text="{Binding}" />
                                     </Grid>
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
+                                </DataTemplate>
+                            </Expander.HeaderTemplate>
+                            <Grid>
+                                <ListView x:Name="lvInner" Grid.Row="1" Margin="5 10" d:ItemsSource="{d:SampleData ItemCount=5}" ItemsSource="{Binding Notifications}">
+                                    <i:Interaction.Behaviors>
+                                        <beh:IgnoreScrollingBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                                        <Border x:Name="Border" Margin="0 5 0 0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                                            <VisualStateManager.VisualStateGroups>
+                                                                <VisualStateGroup x:Name="CommonStates">
+                                                                    <VisualState x:Name="Normal" />
+                                                                    <VisualState x:Name="MouseOver">
+                                                                        <Storyboard>
+                                                                            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border" 
+                                                                          Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
+                                                                                <EasingColorKeyFrame KeyTime="0" Value="#444444" />
+                                                                            </ColorAnimationUsingKeyFrames>
+                                                                        </Storyboard>
+                                                                    </VisualState>
+                                                                    <VisualState x:Name="Disabled" />
+                                                                </VisualStateGroup>
+                                                                <VisualStateGroup x:Name="SelectionStates">
+                                                                    <VisualState x:Name="Unselected" />
+                                                                    <VisualState x:Name="Selected" />
+                                                                    <VisualState x:Name="SelectedUnfocused" />
+                                                                </VisualStateGroup>
+                                                            </VisualStateManager.VisualStateGroups>
+                                                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridView.ColumnHeaderContainerStyle>
+                                                <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                </Style>
+                                            </GridView.ColumnHeaderContainerStyle>
+                                            <GridViewColumn Header="Type" DisplayMemberBinding="{Binding TargetType}" Width="120" />
+                                            <GridViewColumn Header="Threshold" Width="550">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <CheckBox Margin="5 2" d:IsChecked="True" IsChecked="{Binding AboveThresholdEnabled}" />
+                                                            <TextBlock VerticalAlignment="Center" Margin="5 2" Text="Alert when above" />
+                                                            <TextBox VerticalAlignment="Center" Margin="5 2" HorizontalContentAlignment="Center" MinWidth="100" 
+                                                                     d:Text="10" Text="{Binding AboveThreshold}" />
+
+                                                            <CheckBox Margin="20 5 5 5" IsChecked="{Binding BelowThresholdEnabled}" />
+                                                            <TextBlock VerticalAlignment="Center" Margin="5" Text="Alert when below" />
+                                                            <TextBox VerticalAlignment="Center" Margin="5" HorizontalContentAlignment="Center" MinWidth="100"
+                                                                     d:Text="0" Text="{Binding BelowThreshold}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Active" Width="150">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <CheckBox IsEnabled="False" IsChecked="{Binding IsActive}" Margin="0, 0, 10, 0">
+                                                                <CheckBox.Style>
+                                                                    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
+
+                                                                    </Style>
+                                                                </CheckBox.Style>
+                                                            </CheckBox>
+                                                            <Grid>
+                                                                <Button Content="▶" d:Visibility="Visible" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}"
+                                                                        Command="{Binding DataContext.ResumeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}" 
+                                                                        CommandParameter="{Binding}" Margin="0 0 10 0" Width="42" Padding="0" />
+                                                                <Button Content="⏸" d:Visibility="Collapsed" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                        Command="{Binding DataContext.PauseCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}" 
+                                                                        CommandParameter="{Binding}" Margin="0 0 10 0" Width="42" Padding="0" />
+                                                            </Grid>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </Grid>
+                        </Expander>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
 
         <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
             <Label Content="{Binding ValidationMessage}" d:Content="Test validation error message" Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 20 0" />
             <Button Width="200" Height="50" Margin="10" Background="Red" BorderBrush="White" Content="Cancel" Command="{Binding CancelCommand}" />
-            <Button Width="200" Height="50" Margin="10" Content="Save" Command="{Binding SaveCommand}" />
+            <Button Width="200" Height="50" Margin="10" Content="Save" Command="{Binding OkCommand}" />
         </StackPanel>
     </Grid>
 </UserControl>

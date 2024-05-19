@@ -213,9 +213,9 @@ namespace VisualHFT.Notifications
                 }
 
                 var enabledNotifications = routing.GetRouting();
-                foreach (var processor in _balancers.Where(_ => enabledNotifications.Contains(_.BehaviourId)))
+                foreach (var balancer in _balancers.Where(_ => enabledNotifications.Contains(_.BehaviourId)))
                 {
-                    processor.Enqueue(notification);
+                    balancer.Enqueue(notification);
                 }
             }
             catch (Exception ex)

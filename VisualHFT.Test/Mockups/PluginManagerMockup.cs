@@ -92,7 +92,7 @@ namespace VisualHFT.Test.Mockups
         {
             for (int i = 0; i < count; i++)
             {
-                var notification = new TextNotification(subject, $"{text} [{i}]")
+                var notification = new TextNotification(subject, $"{text} [{i}]", i)
                     .FromPlugin("VPINStudy", GetPluginUniqueID())
                     .SetConcatenation(Concatenation.Simple);
 

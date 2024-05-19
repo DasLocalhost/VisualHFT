@@ -1,11 +1,15 @@
-﻿using System;
+﻿using log4net.Plugin;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Input;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
@@ -17,7 +21,7 @@ using VisualHFT.UserSettings;
 namespace VisualHFT.ViewModel.Notification
 {
     /// <summary>
-    /// Change notifications settings (both in settings and notifications managers
+    /// Change notifications settings (both in settings and notifications managers)
     /// </summary>
     public class NotificationsViewModel : IModularViewModel
     {
@@ -36,7 +40,8 @@ namespace VisualHFT.ViewModel.Notification
 
         #endregion
 
-        public ObservableCollection<NotificationsInfo> Notifications { get; private set; }
+        public ObservableCollection<PluginInfo> Plugins { get; private set; }
+        public ICollectionView? PluginsView { get; private set; }
 
         public NotificationsViewModel(IPluginManager pluginManager, ISettingsManager settingsManager, INotificationManager notificationManager)
         {
@@ -50,18 +55,20 @@ namespace VisualHFT.ViewModel.Notification
             ResumeCommand = new RelayCommand<NotificationsInfo>(Resume);
             PauseCommand = new RelayCommand<NotificationsInfo>(Pause);
 
-            Notifications = new ObservableCollection<NotificationsInfo>();
+            Plugins = new ObservableCollection<PluginInfo>();
 
             UpdateValues();
         }
 
         private void Save(object obj)
         {
-            foreach (var notification in Notifications)
+            foreach (var notification in Plugins.SelectMany(_ => _.Notifications))
             {
                 if (notification.HasChanged())
                     notification.SaveChanges();
             }
+
+            _settingsManager.Save();
 
             OnClose?.Invoke(this, EventArgs.Empty);
         }
@@ -83,7 +90,7 @@ namespace VisualHFT.ViewModel.Notification
 
         private void UpdateValues()
         {
-            Notifications.Clear();
+            Plugins.Clear();
 
             if (_settingsManager.UserSettings == null)
                 return;
@@ -93,16 +100,45 @@ namespace VisualHFT.ViewModel.Notification
             if (pluginNotificationSettings == null)
                 return;
 
-            foreach (var plugSettingContainer in pluginNotificationSettings)
+            foreach (var container in pluginNotificationSettings.GroupBy(_ => _.Setting.PluginId))
             {
-                var plugSetting = plugSettingContainer.Setting;
+                var pluginName = _pluginManager.GetPluginName(container.Key) ?? container.Key ?? "NO_PLUGIN_NAME";
+                var isStudy = _pluginManager.IsPluginStudy(container.Key);
 
-                Notifications.Add(new NotificationsInfo(plugSetting)
-                {
-                    PluginName = _pluginManager.GetPluginName(plugSetting.PluginId),
-                    TargetType = plugSetting.ParentSettings.ShortTargetName
-                });
+                Plugins.Add(new PluginInfo(pluginName, isStudy, container.Select(_ => _.Setting).ToList()));
             }
+
+            PluginsView = CollectionViewSource.GetDefaultView(Plugins);
+
+            using (PluginsView.DeferRefresh())
+            {
+                PluginsView.SortDescriptions.Clear();
+
+                PluginsView.SortDescriptions.Add(new SortDescription("IsStudy", ListSortDirection.Ascending));
+                PluginsView.SortDescriptions.Add(new SortDescription("PluginName", ListSortDirection.Ascending));
+            }
+        }
+    }
+
+    public class PluginInfo : INotifyPropertyChanged
+    {
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        #endregion
+
+        public string PluginName { get; private set; }
+        public bool? IsStudy { get; private set; }
+
+        public ObservableCollection<NotificationsInfo> Notifications { get; set; }
+
+        public PluginInfo(string name, bool? isStudy, IList<IPluginNotificationSettings> notifications)
+        {
+            PluginName = name;
+            IsStudy = isStudy;
+
+            Notifications = new ObservableCollection<NotificationsInfo>(notifications.Select(_ => new NotificationsInfo(_)));
         }
     }
 
@@ -118,11 +154,13 @@ namespace VisualHFT.ViewModel.Notification
 
         public IPluginNotificationSettings Setting { get; private set; }
 
-        public string? PluginName { get; set; }
         public string? TargetType { get; set; }
 
-        public double? Threshold { get; set; }
-        public ThresholdRule ThresholdRule { get; set; }
+        public double? AboveThreshold { get; set; }
+        public bool? AboveThresholdEnabled { get; set; }
+
+        public double? BelowThreshold { get; set; }
+        public bool? BelowThresholdEnabled { get; set; }
 
         public bool IsActive
         {
@@ -141,10 +179,15 @@ namespace VisualHFT.ViewModel.Notification
         {
             Setting = settings;
 
-            PluginName = settings.PluginId;
-            TargetType = settings.SettingId;
-            Threshold = settings.Threshold ?? 0;
-            ThresholdRule = settings.ThresholdRule;
+            //PluginName = settings.PluginId;
+            TargetType = settings.ParentSettings.ShortTargetName;
+            
+            AboveThreshold = settings.AboveThreshold;
+            AboveThresholdEnabled = settings.AboveThresholdEnabled;
+
+            BelowThreshold = settings.BelowThreshold;
+            BelowThresholdEnabled = settings.BelowThresholdEnabled;
+
             IsActive = settings.IsEnabled;
         }
 
@@ -153,10 +196,16 @@ namespace VisualHFT.ViewModel.Notification
             if (IsActive != Setting.IsEnabled)
                 return true;
 
-            if (Threshold != Setting.Threshold)
+            if (AboveThreshold != Setting.AboveThreshold)
                 return true;
 
-            if (ThresholdRule != Setting.ThresholdRule)
+            if (AboveThresholdEnabled != Setting.AboveThresholdEnabled)
+                return true;
+
+            if (BelowThreshold != Setting.BelowThreshold)
+                return true;
+
+            if (BelowThresholdEnabled != Setting.BelowThresholdEnabled)
                 return true;
 
             return false;
@@ -164,6 +213,13 @@ namespace VisualHFT.ViewModel.Notification
 
         public void SaveChanges()
         {
+            Setting.IsEnabled = isActive;
+
+            Setting.AboveThreshold = AboveThreshold;
+            Setting.AboveThresholdEnabled = AboveThresholdEnabled ?? false;
+            Setting.BelowThreshold = BelowThreshold;
+            Setting.BelowThresholdEnabled = BelowThresholdEnabled ?? false;
+
             Setting.UpdateInSource();
         }
     }

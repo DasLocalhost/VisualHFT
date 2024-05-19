@@ -19,11 +19,14 @@ namespace VisualHFT.UserSettings
 
     public interface IPluginNotificationSettings : IBaseSettings
     {
-        bool IsEnabled { get; }
+        bool IsEnabled { get; set;  }
         string? PluginId { get; set; }
 
-        double? Threshold { get; set; }
-        ThresholdRule ThresholdRule { get; set; }
+        double? AboveThreshold { get; set; }
+        bool AboveThresholdEnabled { get; set; }
+
+        double? BelowThreshold { get; set; }
+        bool BelowThresholdEnabled { get; set; }
 
         public BaseNotificationSettings ParentSettings { get; set; }
 

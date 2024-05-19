@@ -12,13 +12,4 @@ namespace VisualHFT.Commons.NotificationManager
 
         void Initialize();
     }
-
-    /// <summary>
-    /// Describe the logic applied to the threshold value for notifications
-    /// </summary>
-    public enum ThresholdRule
-    {
-        Less,
-        Greater
-    }
 }

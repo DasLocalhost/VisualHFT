@@ -229,5 +229,18 @@ namespace VisualHFT.PluginManager
 
             return plugin.Name;
         }
+
+        public bool? IsPluginStudy(string? id)
+        {
+            if (id == null)
+                return null;
+
+            var plugin = AllPlugins.FirstOrDefault(_ => _.GetPluginUniqueID() == id);
+
+            if (plugin == null)
+                return null;
+
+            return plugin is IStudy;
+        }
     }
 }

@@ -30,8 +30,10 @@ namespace VisualHFT.Notifications.Toast
                 IsEnabled = false,
                 IncludeTimeStamp = false,
                 PluginId = pluginId,
-                Threshold = 1,
-                ThresholdRule = ThresholdRule.Less
+                AboveThreshold = 0,
+                AboveThresholdEnabled = false,
+                BelowThreshold = 0,
+                BelowThresholdEnabled = false
             };
         }
 
@@ -62,8 +64,10 @@ namespace VisualHFT.Notifications.Toast
         #region IPluginNotificationSettings implementation
 
         public bool IsEnabled { get; set; }
-        public double? Threshold { get; set; }
-        public ThresholdRule ThresholdRule { get; set; }
+        public double? AboveThreshold { get; set; }
+        public bool AboveThresholdEnabled { get; set; }
+        public double? BelowThreshold { get; set; }
+        public bool BelowThresholdEnabled { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }
