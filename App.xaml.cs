@@ -49,7 +49,7 @@ namespace VisualHFT
             builder.RegisterType<PluginManager.PluginManager>()
                 .As<IPluginManager>()
                 .SingleInstance()
-                .OnActivated(_ => LoadPlugins(_.Instance))
+                .OnActivating(_ => LoadPlugins(_.Instance))
                 .AutoActivate();
 
             // Register notification behaviours
