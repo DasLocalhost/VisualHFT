@@ -15,15 +15,14 @@ namespace VisualHFT.Commons.NotificationManager
     public interface INotificationBehaviour
     {
         string UniqueId { get; }
-        string? NotificationTargetName { get; }
+        string? TargetName { get; }
 
         BaseNotificationSettings? Settings { get; }
 
-        // TODO : maybe not standard settings, to be reviewed.
         /// <summary>
         /// Init behaviour using default settings.
         /// </summary>
-        void Init(List<IPlugin> plugins);
+        void Initialize();
 
         /// <summary>
         /// Render the notification in the target system.

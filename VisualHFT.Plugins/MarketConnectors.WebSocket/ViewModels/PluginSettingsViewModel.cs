@@ -66,7 +66,6 @@ namespace MarketConnectors.WebSocket.ViewModel
         private string _providerName;
         private string _validationMessage = string.Empty;
         private string _successMessage = string.Empty;
-        private Action _actionCloseWindow;
 
         #endregion
 
@@ -116,16 +115,8 @@ namespace MarketConnectors.WebSocket.ViewModel
 
         #endregion
 
-        public ICommand OkCommand { get; private set; }
-        public ICommand CancelCommand { get; private set; }
-        public Action UpdateSettingsFromUI{ get; set; }
-
         public PluginSettingsViewModel(PlugInSettings settings) : base(settings, _defaultHeader)
         {
-            //OkCommand = new RelayCommand<object>(ExecuteOkCommand, CanExecuteOkCommand);
-            //CancelCommand = new RelayCommand<object>(ExecuteCancelCommand);
-            //_actionCloseWindow = actionCloseWindow;
-
             _hostName = settings.HostName;
             _port = settings.Port;
             _providerId = settings.ProviderId;
@@ -139,27 +130,13 @@ namespace MarketConnectors.WebSocket.ViewModel
                    string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
         }
 
-        private void ExecuteOkCommand(object obj)
-        {            
-            SuccessMessage = "Settings saved successfully!";
-            UpdateSettingsFromUI?.Invoke();
-            _actionCloseWindow?.Invoke();
-        }
-        private void ExecuteCancelCommand(object obj)
-        {
-            _actionCloseWindow?.Invoke();
-        }
-        private bool CanExecuteOkCommand(object obj)
+        protected override bool CanExecuteOkCommand(object obj)
         {
             // This checks if any validation message exists for any of the properties
             return string.IsNullOrWhiteSpace(this[nameof(HostName)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(Port)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(ProviderId)]) &&
                    string.IsNullOrWhiteSpace(this[nameof(ProviderName)]);
-        }
-        private void RaiseCanExecuteChanged()
-        {
-            (OkCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
         }
 
         public override void ApplyChanges()
@@ -175,7 +152,8 @@ namespace MarketConnectors.WebSocket.ViewModel
             castedSetting.Port = Port;
             castedSetting.Provider.ProviderID = ProviderId;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            RaiseSettingsSaved(castedSetting);
+            //SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
         }
     }
 }

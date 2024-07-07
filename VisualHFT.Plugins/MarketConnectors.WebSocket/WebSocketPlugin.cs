@@ -45,7 +45,7 @@ namespace MarketConnectors.WebSocket
         JsonSerializerSettings? _parser_settings = null;
         ClientWebSocket? _ws;
 
-        public WebSocketPlugin()
+        public WebSocketPlugin(ISettingsManager settingsManager) : base(settingsManager)
         {
             _parser = new JsonParser();
             _parser_settings = new JsonSerializerSettings
@@ -166,27 +166,6 @@ namespace MarketConnectors.WebSocket
                 Status = isConnected ? eSESSIONSTATUS.BOTH_CONNECTED : eSESSIONSTATUS.BOTH_DISCONNECTED,
                 Plugin = this
             };
-        }
-        public override object GetUISettings()
-        {
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //_settings.HostName = viewModel.HostName;
-                //_settings.Port = viewModel.Port;
-                //_settings.ProviderId = viewModel.ProviderId;
-                //_settings.ProviderName = viewModel.ProviderName;
-                //SaveSettings();
-
-                // Start the HandleConnectionLost task without awaiting it
-                //run this because it will allow to reconnect with the new values
-                Task.Run(HandleConnectionLost);
-
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
         }
         protected override void InitializeDefaultSettings()
         {

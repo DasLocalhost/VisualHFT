@@ -15,6 +15,7 @@ namespace VisualHFT.Commons.NotificationManager.Notifications
         #region INotification implementation
 
         public string PluginName { get; set; }
+        public double Value { get; set; }
         public NotificationLevel Level { get; set; }
         public Concatenation Concatenation { get; set; }
         public string PluginId { get; set; }
@@ -25,6 +26,7 @@ namespace VisualHFT.Commons.NotificationManager.Notifications
         /// Short summary of the notification.
         /// </summary>
         public string Title { get; set; }
+
         /// <summary>
         /// Detailed information.
         /// </summary>
@@ -32,6 +34,7 @@ namespace VisualHFT.Commons.NotificationManager.Notifications
 
         public TextNotification(string title,
                                 string text,
+                                double value,
                                 string pluginName = "",
                                 string pluginId = "",
                                 NotificationLevel level = NotificationLevel.Low,
@@ -39,6 +42,7 @@ namespace VisualHFT.Commons.NotificationManager.Notifications
         {
             Title = title;
             Text = text;
+            Value = value;
             PluginName = pluginName;
             PluginId = pluginId;
             Level = level;

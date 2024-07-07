@@ -11,6 +11,7 @@ namespace VisualHFT.Commons.PluginManager
     public abstract class BasePluginStudy : IStudy, VisualHFT.PluginManager.IPlugin, INotificationSource, IDisposable
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly ISettingsManager _settingsManager;
         protected bool _disposed = false; // to track whether the object has been disposed
 
 
@@ -19,9 +20,10 @@ namespace VisualHFT.Commons.PluginManager
         public abstract event EventHandler<BaseStudyModel> OnCalculated;
         public abstract event EventHandler<VisualHFT.PluginManager.ErrorEventArgs> OnError;
 
-        public BasePluginStudy()
+        public BasePluginStudy(ISettingsManager settingsManager)
         {
             // Ensure settings are loaded before starting
+            _settingsManager = settingsManager;
             LoadSettings();
             if (Settings == null)
                 throw new InvalidOperationException($"{Name} plugin settings has not been loaded.");
@@ -59,12 +61,12 @@ namespace VisualHFT.Commons.PluginManager
 
         protected void SaveToUserSettings(ISetting settings)
         {
-            UserSettings.SettingsManager.Instance.SetSetting(SettingKey.TILE_STUDY, GetPluginUniqueID(), settings);
+            _settingsManager.SetSetting(SettingKey.TILE_STUDY, GetPluginUniqueID(), settings);
         }
 
-        protected T LoadFromUserSettings<T>() where T : class
+        protected T? LoadFromUserSettings<T>() where T : class
         {
-            return UserSettings.SettingsManager.Instance.GetSetting<T>(SettingKey.TILE_STUDY, GetPluginUniqueID());
+            return _settingsManager.GetSetting<T>(SettingKey.TILE_STUDY, GetPluginUniqueID());
         }
 
         public virtual string GetPluginUniqueID()
@@ -86,11 +88,6 @@ namespace VisualHFT.Commons.PluginManager
                 }
                 return builder.ToString();
             }
-        }
-        public abstract object GetUISettings(); //using object type because this csproj doesn't support UI
-        public virtual object GetCustomUI()
-        {
-            return null;
         }
 
         protected virtual void Dispose(bool disposing)

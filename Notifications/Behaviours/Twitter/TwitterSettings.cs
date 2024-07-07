@@ -1,15 +1,11 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.Commons.NotificationManager;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
 
-namespace VisualHFT.NotificationManager.Twitter
+namespace VisualHFT.Notifications.Twitter
 {
     /// <summary>
     /// Global settings for Twitter notifications. 
@@ -31,7 +27,11 @@ namespace VisualHFT.NotificationManager.Twitter
             return new TwitterPluginNotificationSetting(this)
             {
                 IsEnabled = false,
-                PluginId = pluginId
+                PluginId = pluginId,
+                AboveThreshold = 0,
+                AboveThresholdEnabled = false,
+                BelowThreshold = 0,
+                BelowThresholdEnabled = false
             };
         }
 
@@ -44,6 +44,16 @@ namespace VisualHFT.NotificationManager.Twitter
     [DefaultSettingsView(typeof(TwitterPluginSettingsViewModel), typeof(TwitterPluginSettingsView))]
     public class TwitterPluginNotificationSetting : IPluginNotificationSettings
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         #region Properties
 
         public string? ApiToken { get; set; }
@@ -59,6 +69,10 @@ namespace VisualHFT.NotificationManager.Twitter
         #region IPluginNotificationSettings implementation
 
         public bool IsEnabled { get; set; }
+        public double? AboveThreshold { get; set; }
+        public bool AboveThresholdEnabled { get; set; }
+        public double? BelowThreshold { get; set; }
+        public bool BelowThresholdEnabled { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }

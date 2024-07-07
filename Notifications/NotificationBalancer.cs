@@ -1,18 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager
+namespace VisualHFT.Notifications
 {
+    // TODO : need to improve balancer. It should be able to set status (Pause, Run, Stop) for each Plugin currently in processing.
     /// <summary>
     /// Balancer that is controlling how often notifications are raised to target system (like Twitter, Win Toast etc)
     /// </summary>
@@ -24,7 +21,11 @@ namespace VisualHFT.NotificationManager
 
         private readonly string _behaviourId;
         private readonly BaseNotificationSettings _settings;
+        private readonly ISettingsManager _settingsManager;
         private ConcurrentQueue<INotification> _notificationsQueue = new ConcurrentQueue<INotification>();
+
+        private Dictionary<string, bool> _aboveFlags;
+        private Dictionary<string, bool> _belowFlags;
 
         private Thread _processingThread;
         private CancellationTokenSource _tokenSource;
@@ -56,7 +57,7 @@ namespace VisualHFT.NotificationManager
         /// </summary>
         public event EventHandler<IList<INotification>>? OnDequeue;
 
-        public NotificationBalancer(BaseNotificationSettings settings)
+        public NotificationBalancer(BaseNotificationSettings settings, ISettingsManager settingsManager)
         {
             _status = ProcessingStatus.NotInit;
 
@@ -64,11 +65,15 @@ namespace VisualHFT.NotificationManager
             _behaviourId = settings.BehaviourId;
 
             _settings = settings;
+            _settingsManager = settingsManager;
 
             _dequeueChunkSize = _settings.Threshold;
             _dequeueWaitInterwal = _settings.UpdateTime;
 
-            SettingsManager.Instance.SettingsChanged += SettingsChanged;
+            _settingsManager.SettingsChanged += SettingsChanged;
+
+            _aboveFlags = new Dictionary<string, bool>();
+            _belowFlags = new Dictionary<string, bool>();
         }
 
         /// <summary>
@@ -89,7 +94,72 @@ namespace VisualHFT.NotificationManager
         /// <param name="notification">Standard notification</param>
         public void Enqueue(INotification notification)
         {
-            _notificationsQueue.Enqueue(notification);
+            try
+            {
+                // Check if notification should be added to the queue
+                var plugSetting = _settings.GetPluginSettings(notification.PluginId);
+
+                // TODO : to cover notifications without actual value sent
+                if (plugSetting != null && plugSetting.IsEnabled)
+                {
+                    if (plugSetting.AboveThresholdEnabled)
+                    {
+                        var cond = plugSetting.AboveThreshold < notification.Value && CheckFlag(notification.PluginId, LogicFlag.Above);
+
+                        if (plugSetting.AboveThreshold < notification.Value)
+                            UpdateFlag(notification.PluginId, LogicFlag.Above, false);
+                        else
+                            UpdateFlag(notification.PluginId, LogicFlag.Above, true);
+
+                        if (cond)
+                        {
+                            _notificationsQueue.Enqueue(notification);
+                            return;
+                        }
+                    }
+
+                    if (plugSetting.BelowThresholdEnabled)
+                    {
+                        var cond = plugSetting.BelowThreshold > notification.Value && CheckFlag(notification.PluginId, LogicFlag.Below);
+
+                        if (plugSetting.BelowThreshold > notification.Value)
+                            UpdateFlag(notification.PluginId, LogicFlag.Below, false);
+                        else
+                            UpdateFlag(notification.PluginId, LogicFlag.Below, true);
+
+                        if (cond)
+                        {
+                            _notificationsQueue.Enqueue(notification);
+                            return;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new NotificationEnqueueFailed(_settings.TargetName, _settings.TargetName, ex);
+            }
+        }
+
+        private bool CheckFlag(string pluginId, LogicFlag logic)
+        {
+            var flags = logic == LogicFlag.Above ? _aboveFlags : _belowFlags;
+
+            if (!flags.ContainsKey(pluginId))
+                flags.Add(pluginId, true);
+
+            return flags[pluginId];
+        }
+
+        private void UpdateFlag(string pluginId, LogicFlag logic, bool value)
+        {
+            var flags = logic == LogicFlag.Above ? _aboveFlags : _belowFlags;
+
+            if (!flags.ContainsKey(pluginId))
+                flags.Add(pluginId, true);
+
+            if (flags[pluginId] != value)
+                flags[pluginId] = value;
         }
 
         #region Control methods
@@ -171,7 +241,7 @@ namespace VisualHFT.NotificationManager
         public void Dispose()
         {
             // Unsubscribe from event
-            SettingsManager.Instance.SettingsChanged -= SettingsChanged;
+            _settingsManager.SettingsChanged -= SettingsChanged;
 
             // Stop prcessing thread if not null
             if (_processingThread != null)
@@ -263,6 +333,15 @@ namespace VisualHFT.NotificationManager
     }
 
     /// <summary>
+    /// The exception that is thrown when notification's enqueue failed.
+    /// </summary>
+    public class NotificationEnqueueFailed : Exception
+    {
+        public NotificationEnqueueFailed(string? pluginName, string? targetName, Exception? ex)
+            : base($"Failed to enqueue the notification from {pluginName} plugin to {targetName} behavior.", ex) { }
+    }
+
+    /// <summary>
     /// Status of the processing unit.
     /// </summary>
     public enum ProcessingStatus
@@ -283,5 +362,11 @@ namespace VisualHFT.NotificationManager
         /// Processing unit is disposed, processing could not be resumed.
         /// </summary>
         Disposed
+    }
+
+    public enum LogicFlag
+    {
+        Above,
+        Below
     }
 }

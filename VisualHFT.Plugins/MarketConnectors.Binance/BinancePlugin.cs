@@ -56,7 +56,7 @@ namespace MarketConnectors.Binance
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
 
-        public BinancePlugin()
+        public BinancePlugin(ISettingsManager settingsManager) : base(settingsManager)
         {
             _socketClient = new BinanceSocketClient(options =>
             {
@@ -546,38 +546,6 @@ namespace MarketConnectors.Binance
                 Symbols = new List<string>() { "BTCUSDT(BTC/USD)", "ETHUSDT(ETH/USD)" } // Add more symbols as needed
             };
             SaveToUserSettings(_settings);
-        }
-
-        // TODO : to rework
-        public override object GetUISettings()
-        {
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            viewModel.ApiSecret = _settings.ApiSecret;
-            viewModel.ApiKey = _settings.ApiKey;
-            viewModel.UpdateIntervalMs = _settings.UpdateIntervalMs;
-            viewModel.DepthLevels = _settings.DepthLevels;
-            viewModel.ProviderId = _settings.Provider.ProviderID;
-            viewModel.ProviderName = _settings.Provider.ProviderName;
-            viewModel.Symbols = _settings.Symbols;
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //_settings.ApiSecret = viewModel.ApiSecret;
-                //_settings.ApiKey = viewModel.ApiKey;
-                //_settings.UpdateIntervalMs = viewModel.UpdateIntervalMs;
-                //_settings.DepthLevels = viewModel.DepthLevels;
-                //_settings.Provider = new VisualHFT.Model.Provider() { ProviderID = viewModel.ProviderId, ProviderName = viewModel.ProviderName };
-                //_settings.Symbols = viewModel.Symbols;
-                //SaveSettings();
-                //ParseSymbols(string.Join(',', _settings.Symbols.ToArray()));
-
-                // Start the HandleConnectionLost task without awaiting it
-                //run this because it will allow to reconnect with the new values
-                Task.Run(HandleConnectionLost);
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
         }
     }
 }

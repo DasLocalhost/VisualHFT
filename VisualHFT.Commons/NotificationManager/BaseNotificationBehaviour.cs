@@ -1,6 +1,7 @@
 ﻿using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
@@ -9,16 +10,18 @@ namespace VisualHFT.Commons.NotificationManager
     // TODO : both for notifications and plugins, settings could be moved to SettingContainer abstract class - no need to write same code for each of them
     public abstract class BaseNotificationBehaviour : INotificationBehaviour
     {
-
         #region Fields
 
         protected BaseNotificationSettings? _settings = null;
+        protected readonly ISettingsManager _settingsManager;
+        protected readonly IPluginManager _pluginManager;
 
         #endregion
 
         #region Properties
 
-        public string? NotificationTargetName { get; protected set; }
+        public string? TargetName { get; protected set; }
+        public string? ShortTargetName { get; protected set; }
         public string? Version { get; protected set; }
 
         #endregion
@@ -27,14 +30,33 @@ namespace VisualHFT.Commons.NotificationManager
 
         public string UniqueId => GetUniqueId();
         public virtual BaseNotificationSettings? Settings => _settings;
-
         public abstract void Send(INotification notification);
 
         #endregion
 
-        public virtual void Init(List<IPlugin> plugins)
+        public BaseNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager)
+        {
+            _settingsManager = settingsManager;
+            _pluginManager = pluginManager;
+        }
+
+        public virtual void Initialize()
         {
             LoadSettings();
+
+            UpdateStrings();
+        }
+
+        private void UpdateStrings()
+        {
+            if (_settings == null)
+                return;
+
+            if (_settings.TargetName == null)
+                _settings.TargetName = TargetName;
+
+            if (_settings.ShortTargetName == null)
+                _settings.ShortTargetName = ShortTargetName;
         }
 
         protected void LoadSettings()
@@ -52,7 +74,7 @@ namespace VisualHFT.Commons.NotificationManager
         // TODO : move to settings provider?
         protected T? LoadFromUserSettings<T>() where T : class
         {
-            var settingFromFile = SettingsManager.Instance.GetSetting<T>(SettingKey.NOTIFICATION, GetUniqueId());
+            var settingFromFile = _settingsManager.GetSetting<T>(SettingKey.NOTIFICATION, GetUniqueId());
 
             return settingFromFile;
         }
@@ -60,7 +82,7 @@ namespace VisualHFT.Commons.NotificationManager
         protected void SaveToUserSettings(IBaseSettings settings)
         {
             string header = GetUniqueId();
-            SettingsManager.Instance.SetSetting(SettingKey.NOTIFICATION, header, settings);
+            _settingsManager.SetSetting(SettingKey.NOTIFICATION, header, settings);
         }
 
         /// <summary>
@@ -73,7 +95,7 @@ namespace VisualHFT.Commons.NotificationManager
             string? assemblyName = GetType().Assembly.FullName;
 
             // Concatenate the attributes
-            string combinedAttributes = $"{NotificationTargetName}{Version}{assemblyName}";
+            string combinedAttributes = $"{TargetName}{Version}{assemblyName}";
 
             // Compute the SHA256 hash
             using (SHA256 sha256 = SHA256.Create())

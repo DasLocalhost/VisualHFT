@@ -9,12 +9,17 @@ namespace VisualHFT.UserSettings
     /// <summary>
     /// Base interface for all types of settings
     /// </summary>
-    public interface IBaseSettings 
+    public interface IBaseSettings
     {
-        ///// <summary>
-        ///// Event raised on settings changed to inform services.
-        ///// </summary>
-        //event EventHandler? OnSettingsChanged;
+        /// <summary>
+        /// Settings ID to store in file
+        /// </summary>
+        public string? SettingId { get; set; }
+
+        /// <summary>
+        /// Settings category to store in file
+        /// </summary>
+        public SettingKey? SettingKey { get; set; }
     }
 
     // TODO : check if this attribute still needed

@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VisualHFT.Commons.API.Zapier;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Twitter;
-using VisualHFT.PluginManager;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Zapier
+namespace VisualHFT.Notifications.Zapier
 {
     /// <summary>
     /// Notifications logic for Zapier notifications.
@@ -22,9 +15,10 @@ namespace VisualHFT.NotificationManager.Zapier
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
 
-        public ZapierNotificationBehaviour()
+        public ZapierNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Zapier Notifications";
+            TargetName = "Zapier Notifications";
+            ShortTargetName = "Zapier";
             Version = "1.0.0.0";
         }
 
@@ -32,10 +26,12 @@ namespace VisualHFT.NotificationManager.Zapier
 
         public override ZapierNotificationSetting? Settings => _settings as ZapierNotificationSetting;
 
-        public override void Init(List<IPlugin> plugins)
+        public override void Initialize()
         {
             // Code to init a behaviour
-            base.Init(plugins);
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
 
             SetUpConnection();
@@ -43,19 +39,19 @@ namespace VisualHFT.NotificationManager.Zapier
 
         public override void Send(INotification notification)
         {
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior received a new notification.");
+            log.Debug($"Notifications: [{TargetName}] behavior received a new notification.");
 
             // If settings are not init yet - skip the notification
             if (_settings == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] is not initialized properly. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] is not initialized properly. Received notification will be skipped.");
                 return;
             }
 
             var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as ZapierPluginNotificationSetting;
             if (pluginSetting == null)
             {
-                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
+                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{TargetName}] behavior. Received notification will be skipped.");
                 return;
             }
 
@@ -75,7 +71,7 @@ namespace VisualHFT.NotificationManager.Zapier
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new ZapierNotificationSetting(GetUniqueId(), NotificationTargetName);
+            var settings = new ZapierNotificationSetting(GetUniqueId(), TargetName);
 
             SaveToUserSettings(settings);
 
@@ -90,15 +86,14 @@ namespace VisualHFT.NotificationManager.Zapier
         /// <exception cref="Exception"></exception>
         private void SetUpConnection()
         {
-            if (!(_settings is ZapierNotificationSetting zapierSettings))
-                throw new Exception();
+
         }
 
         private void ShowSimpleNotification(TextNotification textNotification, ZapierPluginNotificationSetting pluginSetting)
         {
             if (pluginSetting.FullWebHookUrl == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an web hook url for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an web hook url for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
 

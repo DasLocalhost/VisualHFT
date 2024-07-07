@@ -1,15 +1,11 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.Commons.NotificationManager;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
 
-namespace VisualHFT.NotificationManager.Toast
+namespace VisualHFT.Notifications.Toast
 {
     /// <summary>
     /// Global settings for Win Toast notifications. 
@@ -26,6 +22,7 @@ namespace VisualHFT.NotificationManager.Toast
 
         #region BaseNotificationSettings implementation
 
+        // TODO : maybe moved from settings file to plugin? plugin will decide what is a standard Threshold and Rule
         protected override IPluginNotificationSettings GetDefaultPluginBasedSettings(string pluginId)
         {
             return new ToastPluginNotificationSetting(this)
@@ -33,6 +30,10 @@ namespace VisualHFT.NotificationManager.Toast
                 IsEnabled = false,
                 IncludeTimeStamp = false,
                 PluginId = pluginId,
+                AboveThreshold = 0,
+                AboveThresholdEnabled = false,
+                BelowThreshold = 0,
+                BelowThresholdEnabled = false
             };
         }
 
@@ -45,13 +46,28 @@ namespace VisualHFT.NotificationManager.Toast
     [DefaultSettingsView(typeof(ToastPluginSettingsViewModel), typeof(ToastPluginSettingsView))]
     public class ToastPluginNotificationSetting : IPluginNotificationSettings
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         /// <summary>
         /// True if we need to include a time stamp to notification.
         /// </summary>
         public bool IncludeTimeStamp { get; set; }
 
         #region IPluginNotificationSettings implementation
+
         public bool IsEnabled { get; set; }
+        public double? AboveThreshold { get; set; }
+        public bool AboveThresholdEnabled { get; set; }
+        public double? BelowThreshold { get; set; }
+        public bool BelowThresholdEnabled { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }

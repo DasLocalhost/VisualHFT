@@ -14,11 +14,7 @@ namespace VisualHFT.PluginManager
 
         event EventHandler<ErrorEventArgs> OnError;
 
-
         string GetPluginUniqueID();
-        object GetUISettings(); //using object type because this csproj doesn't support UI
-        object GetCustomUI();   //Allow to setup own UI for the plugin
-                                //using object type because this csproj doesn't support UI
     }
     public class ErrorEventArgs : EventArgs
     {

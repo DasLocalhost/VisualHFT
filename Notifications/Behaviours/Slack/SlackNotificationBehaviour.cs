@@ -1,18 +1,14 @@
 ﻿using QuickFix;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VisualHFT.Commons.API.Slack;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Zapier;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Slack
+namespace VisualHFT.Notifications.Slack
 {
     /// <summary>
     /// Notifications logic for Slack notifications.
@@ -22,9 +18,10 @@ namespace VisualHFT.NotificationManager.Slack
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
 
-        public SlackNotificationBehaviour()
+        public SlackNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Slack Notifications";
+            TargetName = "Slack Notifications";
+            ShortTargetName = "Slack";
             Version = "1.0.0.0";
         }
 
@@ -32,32 +29,34 @@ namespace VisualHFT.NotificationManager.Slack
         
         public override SlackNotificationSetting? Settings => _settings as SlackNotificationSetting;
 
-        public override void Init(List<IPlugin> plugins)
+        public override void Initialize()
         {
             // Code to init a behaviour
-            base.Init(plugins);
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
 
             SetUpConnection();
 
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior initialized successfully.");
+            log.Debug($"Notifications: [{TargetName}] behavior initialized successfully.");
         }
 
         public override void Send(INotification notification)
         {
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior received a new notification.");
+            log.Debug($"Notifications: [{TargetName}] behavior received a new notification.");
 
             // If settings are not init yet - skip the notification
             if (_settings == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] is not initialized properly. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] is not initialized properly. Received notification will be skipped.");
                 return;
             }
 
             var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as SlackPluginNotificationSetting;
             if (pluginSetting == null)
             {
-                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
+                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{TargetName}] behavior. Received notification will be skipped.");
                 return;
             }
 
@@ -77,7 +76,7 @@ namespace VisualHFT.NotificationManager.Slack
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new SlackNotificationSetting(GetUniqueId(), NotificationTargetName);
+            var settings = new SlackNotificationSetting(GetUniqueId(), TargetName);
 
             SaveToUserSettings(settings);
 
@@ -92,9 +91,7 @@ namespace VisualHFT.NotificationManager.Slack
         /// <exception cref="Exception"></exception>
         private void SetUpConnection()
         {
-            // TODO : fix exception here.
-            if (_settings is not SlackNotificationSetting slackSettings)
-                throw new Exception();
+
         }
 
         /// <summary>
@@ -106,12 +103,12 @@ namespace VisualHFT.NotificationManager.Slack
         {
             if (pluginSetting.Token == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.Channel == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty channel name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty channel name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
 

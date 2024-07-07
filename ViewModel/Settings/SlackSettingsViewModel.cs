@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static log4net.Appender.RollingFileAppender;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.UserSettings;
+﻿using VisualHFT.Notifications.Slack;
 
 namespace VisualHFT.ViewModel.Settings
 {
@@ -58,6 +50,12 @@ namespace VisualHFT.ViewModel.Settings
                 && string.IsNullOrEmpty(this[nameof(UpdateTime)]);
         }
 
+        protected override bool CanExecuteOkCommand(object obj)
+        {
+            return string.IsNullOrEmpty(this[nameof(Threshold)])
+                && string.IsNullOrEmpty(this[nameof(UpdateTime)]);
+        }
+
         public override void ApplyChanges()
         {
             // TODO : logs / Exceptions here
@@ -70,7 +68,8 @@ namespace VisualHFT.ViewModel.Settings
             castedSetting.Threshold = Threshold;
             castedSetting.UpdateTime = UpdateTime;
 
-            SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // SettingsManager.Instance.UserSettings?.RaiseSettingsChanged(castedSetting);
+            // TODO : event here
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using VisualHFT.Commons.Helpers;
+using VisualHFT.Commons.WPF.Helper;
 using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.Helpers;
 using VisualHFT.Model;
@@ -25,11 +26,14 @@ namespace VisualHFT.ViewModel
 
     public class vmUserSettings : BindableBase
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         #region Fields
 
         private string _validationMessage = string.Empty;
         private bool _containsUnsaved = false;
         private List<BaseSettingsViewModel> _allViewModels = new List<BaseSettingsViewModel>();
+        private readonly ISettingsManager _settingsManager;
 
         #endregion
 
@@ -69,7 +73,7 @@ namespace VisualHFT.ViewModel
 
         public ObservableCollection<TreeViewModel> Categories { get; set; } = new ObservableCollection<TreeViewModel>();
 
-        public UserSettings.UserSettings Settings { get; } = SettingsManager.Instance.UserSettings;
+        public UserSettings.UserSettings? Settings => _settingsManager.UserSettings;
 
         public TreeViewModel? SelectedSettings { get; set; }
 
@@ -80,8 +84,10 @@ namespace VisualHFT.ViewModel
 
         public event EventHandler? OnClose;
 
-        public vmUserSettings()
+        public vmUserSettings(ISettingsManager settingsManager)
         {
+            _settingsManager = settingsManager;
+
             CancelCommand = new RelayCommand<object>(Cancel);
             SaveCommand = new RelayCommand<object>(SaveSettings, CanSave);
 
@@ -95,8 +101,14 @@ namespace VisualHFT.ViewModel
             _allViewModels.Clear();
             Categories.Clear();
 
-            var settings = SettingsManager.Instance.UserSettings.ComponentSettings;
-            var pluginNotificationSettings = SettingsManager.Instance.UserSettings.GetPluginsRelatedNotificationSettings();
+            if (_settingsManager.UserSettings == null)
+            {
+                log.Error("Settings: Can't init Settings UI - User settings are null.");
+                return;
+            }
+
+            var settings = _settingsManager.UserSettings.ComponentSettings;
+            var pluginNotificationSettings = _settingsManager.UserSettings.GetPluginsRelatedNotificationSettings();
 
             foreach (var group in settings)
             {
@@ -105,9 +117,11 @@ namespace VisualHFT.ViewModel
 
                 foreach (var container in group.SettingContainers)
                 {
-                    // TODO : logs here
                     if (container.Settings == null)
+                    {
+                        log.Warn($"Settings: Can't init Settings UI for [{key}-{container.Id}] - settings are null.");
                         continue;
+                    }
 
                     var id = container.Id;
                     var header = id;
@@ -124,7 +138,10 @@ namespace VisualHFT.ViewModel
                         {
                             var contentInner = ParseAsAttribute(SettingKey.NOTIFICATION, plugSetting.Key, plugSetting.Setting);
                             if (contentInner == null)
+                            {
+                                log.Warn($"Settings: Can't init Settings UI for [{key}-{container.Id}-{plugSetting.Key}] - settings are null.");
                                 continue;
+                            }
 
                             tvmContainer.Contents.Add(new TreeViewModel.SettingViewPair(plugSetting.Setting, contentInner));
                         }
@@ -145,31 +162,31 @@ namespace VisualHFT.ViewModel
 
         private object? ParseAsAttribute(SettingKey key, string id, IBaseSettings setting)
         {
-            // Get the view / viewmodel types from the attribute
-            var vmType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewModelType);
-            var viewType = AttributesHelper.GetAttributeValue<DefaultSettingsViewAttribute, Type>(setting, _ => _.ViewType);
+            // Get settings UI from metadata
+            var mappedUI = Commons.WPF.Helper.UIHelper.GetSettingsUI(setting);
 
-            // Return null if mapping is missing
-            if (vmType == null || viewType == null)
+            if (mappedUI == null)
                 return null;
 
-            var viewModel = Activator.CreateInstance(vmType, setting) as BaseSettingsViewModel;
-            var view = Activator.CreateInstance(viewType) as UserControl;
-
-            // Return null if can't create an instance of mapped view / viewmodel
-            if (viewModel == null || view == null)
+            if (!mappedUI.IsValid<BaseSettingsViewModel>())
                 return null;
 
-            viewModel.SettingKey = key;
-            viewModel.SettingId = id;
+            var view = mappedUI.View as UserControl;
+            var viewModel = mappedUI.ViewModel as BaseSettingsViewModel;
 
-            viewModel.SettingChanged += SettingsChanged;
+            viewModel.SettingsChanged += SettingsChanged;
+            viewModel.SettingsSaved += SettingsSaved;
 
             _allViewModels.Add(viewModel);
 
             view.DataContext = viewModel;
 
             return view;
+        }
+
+        private void SettingsSaved(object? sender, IBaseSettings e)
+        {
+            _settingsManager.UserSettings?.RaiseSettingsChanged(e);
         }
 
         private object BuildNoSettingsView()
@@ -198,11 +215,11 @@ namespace VisualHFT.ViewModel
                     }
                     catch
                     {
-
+                        // TODO : change the logic here
                     }
                 }
 
-                SettingsManager.Instance.Save();
+                _settingsManager.Save();
 
                 ContainsUnsaved = false;
                 (SaveCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
@@ -211,7 +228,7 @@ namespace VisualHFT.ViewModel
             }
             catch (Exception ex)
             {
-                // TODO : add logs
+                log.Error("Settings: Can't save settings from UI.", ex);
                 ValidationMessage = ex.Message;
             }
         }
@@ -266,7 +283,7 @@ namespace VisualHFT.ViewModel
                 if (content.View is UserControl view && view.DataContext is BaseSettingsViewModel baseSettingViewModel)
                 {
                     _baseSettingViewModel = baseSettingViewModel;
-                    baseSettingViewModel.SettingChanged += BaseSettingViewModel_SettingChanged;
+                    baseSettingViewModel.SettingsChanged += BaseSettingViewModel_SettingChanged;
                 }
             }
         }

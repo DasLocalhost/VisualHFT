@@ -9,5 +9,7 @@ namespace VisualHFT.Commons.NotificationManager
     public interface INotificationManager
     {
         public Dictionary<string, INotificationBehaviour>? ActiveBehaviours { get; }
+
+        void Initialize();
     }
 }

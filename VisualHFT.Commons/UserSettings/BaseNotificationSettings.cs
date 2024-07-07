@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.UserSettings;
+﻿using Newtonsoft.Json;
 using VisualHFT.PluginManager;
-using Newtonsoft.Json;
 
 namespace VisualHFT.UserSettings
 {
@@ -14,6 +8,16 @@ namespace VisualHFT.UserSettings
     /// </summary>
     public abstract class BaseNotificationSettings : INotificationSettings
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         /// <summary>
         /// Header to display on UI
         /// </summary>
@@ -22,7 +26,12 @@ namespace VisualHFT.UserSettings
         /// <summary>
         /// Name of the notifications target system.
         /// </summary>
-        public string? TargetName { get; }
+        public string? TargetName { get; set; }
+
+        /// <summary>
+        /// Compact name of the notifications target system.
+        /// </summary>
+        public string? ShortTargetName { get; set; }
 
         /// <summary>
         /// Id of related notifications behavior.

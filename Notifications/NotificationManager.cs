@@ -1,34 +1,29 @@
-﻿using log4net.Core;
-using log4net.Plugin;
-using QuickFix;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using VisualHFT.Commons.NotificationManager;
-using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Twitter;
-using VisualHFT.NotificationManager.Zapier;
-using VisualHFT.PluginManager;
+using VisualHFT.Commons.PluginManager;
+using VisualHFT.Notifications.Slack;
+using VisualHFT.Notifications.Toast;
+using VisualHFT.Notifications.Twitter;
+using VisualHFT.Notifications.Zapier;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager
+namespace VisualHFT.Notifications
 {
     /// <summary>
     /// Manager to route notifications from plugins to different behaviours.
     /// </summary>
     public class NotificationManager : INotificationManager
     {
+        private readonly IPluginManager _pluginManager;
+        private readonly ISettingsManager _settingsManager;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #region Fields
 
         private List<NotificationBalancer>? _balancers;
+        private IEnumerable<INotificationBehaviour> _behaviorsList;
         private Dictionary<string, INotificationBehaviour>? _behaviours;
         private List<PluginRouting>? _routingMap;
 
@@ -41,41 +36,45 @@ namespace VisualHFT.NotificationManager
         /// </summary>
         public Dictionary<string, INotificationBehaviour>? ActiveBehaviours => _behaviours;
 
-        public static NotificationManager? Instance { get; private set; }
-
         #endregion
+
+        public NotificationManager(IEnumerable<INotificationBehaviour> behaviors, IPluginManager pluginManager, ISettingsManager settingsManager)
+        {
+            _pluginManager = pluginManager;
+            _settingsManager = settingsManager;
+            _behaviorsList = behaviors;
+        }
 
         /// <summary>
         /// Try to init the notifications subsystem.
         /// Inner initialization order - Init Behaviours -> Init processors (balancers) -> Start processors -> Map routing -> Start listening
         /// </summary>
         /// <param name="plugins"></param>
-        public static void Init(IList<PluginManager.IPlugin> plugins)
+        public void Initialize()
         {
             try
             {
                 log.Info("Notifications: Start initialization.");
 
-                Instance = new NotificationManager();
-
                 log.Debug("Notifications: Init behaviors.");
-                Instance.InitBehaviours();
+                InitBehaviours();
                 log.Debug("Notifications: Init balancers.");
-                Instance.InitBalancers();
+                InitBalancers();
 
                 log.Debug("Notifications: Start processing.");
-                Instance.StartProcessing();
+                StartProcessing();
 
                 // Make routing using plugin settings
                 log.Debug("Notifications: Map routing.");
-                Instance.MapRouting(plugins);
+                MapRouting(_pluginManager.AllPlugins);
 
                 // Subscribe to notification raised event only after init is done
-                foreach (var plugin in plugins)
+                foreach (var plugin in _pluginManager.AllPlugins)
                 {
                     if (plugin is INotificationSource source)
                     {
-                        source.OnNotificationRaised += Instance.OnNotificationRaised;
+                        // TODO : make a global switch 'Notifications enabled / disabled'
+                        source.OnNotificationRaised += OnNotificationRaised;
                         log.Info($"Notifications: subscription for [{plugin.Name}] plugin is done.");
                     }
                 }
@@ -95,23 +94,10 @@ namespace VisualHFT.NotificationManager
         /// </summary>
         private void InitBehaviours()
         {
-            if (PluginManager.PluginManager.Instance == null)
+            if (_pluginManager == null)
                 throw new Exception("Can't initialized behaviors - PluginManager instance is null. Check the initialization order.");
 
-            var behavioursList = GetBehaviours();
-            _behaviours = behavioursList.ToDictionary(_ => _.UniqueId);
-
-            foreach (var behaviour in _behaviours.Values)
-            {
-                try
-                {
-                    behaviour.Init(PluginManager.PluginManager.Instance.AllPlugins);
-                }
-                catch (Exception ex)
-                {
-                    log.Error($"Notifications: Failed to init [{behaviour.NotificationTargetName}] behavior.", ex);
-                }
-            }
+            _behaviours = _behaviorsList.ToDictionary(_ => _.UniqueId);
         }
 
         /// <summary>
@@ -133,7 +119,7 @@ namespace VisualHFT.NotificationManager
                     continue;
                 }
 
-                var balancer = new NotificationBalancer(behaviour.Settings);
+                var balancer = new NotificationBalancer(behaviour.Settings, _settingsManager);
                 balancer.OnDequeue += Route;
 
                 _balancers.Add(balancer);
@@ -152,6 +138,7 @@ namespace VisualHFT.NotificationManager
             _balancers.ForEach(_ => _.Start());
         }
 
+        // TODO : implement logic to update routing if settings changed
         /// <summary>
         /// Prepare a mapping for fast routing notifications from plugins to enabled notifications behaviours.
         /// </summary>
@@ -173,7 +160,7 @@ namespace VisualHFT.NotificationManager
                 {
                     if (behav.Settings is null)
                     {
-                        log.Warn($"Notifications: can't make a routing for [{behav.NotificationTargetName}] behavior - behavior settings are null.");
+                        log.Warn($"Notifications: can't make a routing for [{behav.TargetName}] behavior - behavior settings are null.");
                         continue;
                     }
 
@@ -194,26 +181,7 @@ namespace VisualHFT.NotificationManager
             }
         }
 
-        /// <summary>
-        /// Get the list of notifications behaviours.
-        /// </summary>
-        /// <returns>List of available notifications behaviours.</returns>
-        private List<INotificationBehaviour> GetBehaviours()
-        {
-            // Hardcoded now, could be reworked in same way as Plugins works, with dynamic uploading from dlls
-            return new List<INotificationBehaviour>()
-            {
-                { new ToastNotificationBehaviour() },
-                { new SlackNotificationBehaviour() },
-                { new ZapierNotificationBehaviour() },
-                { new TwitterNotificationBehaviour() },
-            };
-        }
-
         #endregion
-
-        private int _raisedCount = 0;
-        private int _routedCount = 0;
 
         /// <summary>
         /// Route the notification from the source to processor.
@@ -224,8 +192,6 @@ namespace VisualHFT.NotificationManager
         {
             try
             {
-                _raisedCount++;
-
                 // In the case of extending - use another interface instead of IPlugin. Unique Id feature should be implemented for this interface.
                 if (source is not PluginManager.IPlugin plugin)
                     return;
@@ -247,9 +213,9 @@ namespace VisualHFT.NotificationManager
                 }
 
                 var enabledNotifications = routing.GetRouting();
-                foreach (var processor in _balancers.Where(_ => enabledNotifications.Contains(_.BehaviourId)))
+                foreach (var balancer in _balancers.Where(_ => enabledNotifications.Contains(_.BehaviourId)))
                 {
-                    processor.Enqueue(notification);
+                    balancer.Enqueue(notification);
                 }
             }
             catch (Exception ex)
@@ -276,7 +242,7 @@ namespace VisualHFT.NotificationManager
                 if (behaviour == null)
                     throw new Exception($"Failed to route notifications: unknown behavior found [{balancer.BehaviourId}]");
 
-                log.Debug($"Notifications: New notifications chunk ({notifications.Count}) routed for [{behaviour.NotificationTargetName}] target.");
+                log.Debug($"Notifications: New notifications chunk ({notifications.Count}) routed for [{behaviour.TargetName}] target.");
 
                 foreach (var notification in notifications)
                     behaviour?.Send(notification);

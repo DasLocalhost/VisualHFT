@@ -11,6 +11,7 @@ using VisualHFT.Commons.Studies;
 using VisualHFT.View;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
+using VisualHFT.Commons.PluginManager;
 
 namespace VisualHFT.ViewModel
 {
@@ -34,6 +35,7 @@ namespace VisualHFT.ViewModel
         //*********************************************************
         private IStudy _study;
         private IMultiStudy _multiStudy;
+        private readonly IPluginManager _pluginManager;
         private PluginManager.IPlugin _plugin;
         //*********************************************************
         //*********************************************************
@@ -42,10 +44,12 @@ namespace VisualHFT.ViewModel
         private SolidColorBrush _valueColor = Brushes.White;
         private UserControl _customControl;
 
-        public vmTile(PluginManager.IPlugin plugin)
+        public vmTile(PluginManager.IPlugin plugin, IPluginManager pluginManager)
         {
             _plugin = plugin;
-            _customControl = _plugin.GetCustomUI() as UserControl;
+            // TODO : check if custom UI should be applied here
+            //_customControl = _plugin.GetCustomUI() as UserControl;
+            _pluginManager = pluginManager;
             IsUserControl = _customControl != null;
 
             _tile_id = _plugin.GetPluginUniqueID();
@@ -64,15 +68,16 @@ namespace VisualHFT.ViewModel
             }
 
         }
-        public vmTile(IMultiStudy multiStudy)
+        public vmTile(IMultiStudy multiStudy, IPluginManager pluginManager)
         {
             IsGroup = true;
 
             _multiStudy = multiStudy;
+            _pluginManager = pluginManager;
             ChildTiles = new ObservableCollection<vmTile>();
             foreach (var study in _multiStudy.Studies)
             {
-                ChildTiles.Add(new vmTile(study) { SettingButtonVisibility = Visibility.Hidden, ChartButtonVisibility = Visibility.Hidden });
+                ChildTiles.Add(new vmTile(study, _pluginManager) { SettingButtonVisibility = Visibility.Hidden, ChartButtonVisibility = Visibility.Hidden });
             }
 
             _tile_id = ((PluginManager.IPlugin)_multiStudy).GetPluginUniqueID();
@@ -94,11 +99,12 @@ namespace VisualHFT.ViewModel
             SettingButtonVisibility = Visibility.Hidden;
             ChartButtonVisibility = Visibility.Hidden;
         }
-        public vmTile(IStudy study)
+        public vmTile(IStudy study, IPluginManager pluginManager)
         {
             IsGroup = false;
 
             _study = study;
+            _pluginManager = pluginManager;
             _tile_id = ((PluginManager.IPlugin)_study).GetPluginUniqueID();
             _title = _study.TileTitle;
             _tooltip = _study.TileToolTip;
@@ -224,23 +230,23 @@ namespace VisualHFT.ViewModel
             if (_study != null)
             {
                 var winChart = new ChartStudy();
-                winChart.DataContext = new vmChartStudy(_study);
+                winChart.DataContext = new vmChartStudy(_study, _pluginManager);
                 winChart.Show();
             }
             else if (_multiStudy != null)
             {
                 var winChart = new ChartStudy();
-                winChart.DataContext = new vmChartStudy(_multiStudy);
+                winChart.DataContext = new vmChartStudy(_multiStudy, _pluginManager);
                 winChart.Show();
             }
         }
         private void OpenSettings(object obj)
         {
             if (_study != null)
-                PluginManager.PluginManager.Instance.SettingPlugin((PluginManager.IPlugin)_study);
+                _pluginManager.SettingPlugin((PluginManager.IPlugin)_study);
             else if (_multiStudy != null)
             {
-                PluginManager.PluginManager.Instance.SettingPlugin((PluginManager.IPlugin)_multiStudy);
+                _pluginManager.SettingPlugin((PluginManager.IPlugin)_multiStudy);
                 foreach (var child in ChildTiles)
                 {
                     child.UpdateAllUI();
@@ -248,7 +254,7 @@ namespace VisualHFT.ViewModel
             }
             else if (_plugin != null)
             {
-                PluginManager.PluginManager.Instance.SettingPlugin(_plugin);
+                _pluginManager.SettingPlugin(_plugin);
             }
             RaisePropertyChanged(nameof(SelectedSymbol));
             RaisePropertyChanged(nameof(SelectedProviderName));

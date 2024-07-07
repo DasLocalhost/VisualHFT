@@ -45,12 +45,6 @@ namespace VisualHFT.Commons.API.Slack
 
             if (!ValidateToken())
                 throw new InvalidTokenException();
-
-            //SendMessage(new SlackMessage()
-            //{
-            //    Text = "Web update test",
-            //    Channel = "#slack-notification-from-desktop"
-            //});
         }
 
         private bool ValidateToken()

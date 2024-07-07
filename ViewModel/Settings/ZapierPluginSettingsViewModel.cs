@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VisualHFT.Commons.WPF.ViewModel;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Zapier;
+using VisualHFT.Notifications.Zapier;
 using VisualHFT.UserSettings;
 
 namespace VisualHFT.ViewModel.Settings
@@ -15,6 +10,8 @@ namespace VisualHFT.ViewModel.Settings
         private const string _defaultHeader = "Zapier Notifications";
 
         #region Fields
+
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private string? _webHookUrl;
         private bool _isEnabled;
@@ -99,17 +96,28 @@ namespace VisualHFT.ViewModel.Settings
             return true;
         }
 
+        protected override bool CanExecuteOkCommand(object obj)
+        {
+            return true;
+        }
+
         public override void ApplyChanges()
         {
-            // TODO : logs / Exceptions here
             if (_setting is not ZapierPluginNotificationSetting castedSetting)
+            {
+                log.Error("Notifications: Can't cast Plugin-related settings to Zapier settings.");
                 return;
+            }
 
             if (SettingKey == null || SettingId == null)
+            {
+                log.Error($"Notifications: Can't save Zapier Plugin-related settings. Setting Key - [{SettingKey}]. Setting Id - [{SettingId}]");
                 return;
+            }
 
             castedSetting.WebHookUrl = WebHookUrl;
             castedSetting.IsEnabled = IsEnabled;
+
             castedSetting.UpdateInSource();
         }
     }

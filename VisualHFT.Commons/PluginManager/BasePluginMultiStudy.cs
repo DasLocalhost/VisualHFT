@@ -9,14 +9,17 @@ namespace VisualHFT.Commons.PluginManager
     public abstract class BasePluginMultiStudy : IMultiStudy, VisualHFT.PluginManager.IPlugin, IDisposable
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly ISettingsManager _settingsManager;
         protected bool _disposed = false; // to track whether the object has been disposed
 
         public event EventHandler<VisualHFT.PluginManager.ErrorEventArgs> OnError;
 
-        public BasePluginMultiStudy()
+        public BasePluginMultiStudy(ISettingsManager settingsManager)
         {
             // Ensure settings are loaded before starting
+            _settingsManager = settingsManager;
             LoadSettings();
+
             if (Settings == null)
                 throw new InvalidOperationException($"{Name} plugin settings has not been loaded.");
 
@@ -50,19 +53,15 @@ namespace VisualHFT.Commons.PluginManager
             log.Info("Plugins: " + Name + " has stopped.");
         }
 
-
+        // TODO : move this settings-related methods to out class. somehow.
         protected void SaveToUserSettings(ISetting settings)
         {
-            UserSettings.SettingsManager.Instance.SetSetting(SettingKey.TILE_STUDY, GetPluginUniqueID(), settings);
+            _settingsManager.SetSetting(SettingKey.TILE_STUDY, GetPluginUniqueID(), settings);
         }
-        protected T LoadFromUserSettings<T>() where T : class
+
+        protected T? LoadFromUserSettings<T>() where T : class
         {
-            var jObject = UserSettings.SettingsManager.Instance.GetSetting<object>(SettingKey.TILE_STUDY, GetPluginUniqueID()) as Newtonsoft.Json.Linq.JObject;
-            if (jObject != null)
-            {
-                return jObject.ToObject<T>();
-            }
-            return null;
+            return _settingsManager.GetSetting<T>(SettingKey.TILE_STUDY, GetPluginUniqueID());
         }
 
         protected virtual void Dispose(bool disposing)

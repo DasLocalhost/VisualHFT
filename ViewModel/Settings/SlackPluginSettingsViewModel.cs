@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VisualHFT.Commons.WPF.ViewModel;
-using VisualHFT.NotificationManager.Slack;
+using VisualHFT.Notifications.Slack;
 using VisualHFT.UserSettings;
-using static log4net.Appender.RollingFileAppender;
 
 namespace VisualHFT.ViewModel.Settings
 {
@@ -16,7 +11,8 @@ namespace VisualHFT.ViewModel.Settings
 
         #region Fields
 
-        private string? _testPluginProperty;
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private bool _isEnabled;
         private string? _channel;
         private string? _token;
@@ -55,7 +51,6 @@ namespace VisualHFT.ViewModel.Settings
         }
 
         #endregion
-
 
         #region Properties
 
@@ -100,8 +95,7 @@ namespace VisualHFT.ViewModel.Settings
             }
         }
 
-        public SlackPluginSettingsViewModel(IPluginNotificationSettings setting)
-            : base(setting, _defaultHeader)
+        public SlackPluginSettingsViewModel(IPluginNotificationSettings setting) : base(setting, _defaultHeader)
         {
             // TODO : custom exception here
             if (!(setting is SlackPluginNotificationSetting pluginSettings))
@@ -118,19 +112,30 @@ namespace VisualHFT.ViewModel.Settings
             return true;
         }
 
+        protected override bool CanExecuteOkCommand(object obj)
+        {
+            return true;
+        }
+
         public override void ApplyChanges()
         {
-            // TODO : logs / Exceptions here
-            if (!(_setting is SlackPluginNotificationSetting castedSetting))
+            if (_setting is not SlackPluginNotificationSetting castedSetting)
+            {
+                log.Error("Notifications: Can't cast Plugin-related settings to Slack settings.");
                 return;
+            }
 
             if (SettingKey == null || SettingId == null)
+            {
+                log.Error($"Notifications: Can't save Slack Plugin-related settings. Setting Key - [{SettingKey}]. Setting Id - [{SettingId}]");
                 return;
+            }
 
             castedSetting.Token = Token;
             castedSetting.Channel = Channel;
 
             castedSetting.IsEnabled = IsEnabled;
+
             castedSetting.UpdateInSource();
         }
     }

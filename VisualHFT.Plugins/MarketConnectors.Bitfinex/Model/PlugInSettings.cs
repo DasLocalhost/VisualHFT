@@ -1,13 +1,9 @@
-﻿using CryptoExchange.Net.CommonObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.UserSettings;
+﻿using MarketConnectors.Bitfinex.UserControls;
 using MarketConnectors.Bitfinex.ViewModel;
-using MarketConnectors.Bitfinex.UserControls;
-using VisualHFT.Commons.WPF.ViewModel;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using VisualHFT.Commons.WPF.ViewMapping;
+using VisualHFT.UserSettings;
 
 namespace MarketConnectors.Bitfinex.Model
 {
@@ -15,6 +11,16 @@ namespace MarketConnectors.Bitfinex.Model
     [CompactSettingsView(typeof(PluginSettingsViewModel), typeof(PluginCompactSettingsView))]
     public class PlugInSettings : ISetting
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
         public List<string> Symbols { get; set; }

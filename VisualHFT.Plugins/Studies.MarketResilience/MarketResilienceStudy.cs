@@ -60,7 +60,7 @@ namespace VisualHFT.Studies
                 "<br/>" +
                 "The <b>MR</b> score is the average of these two normalized metrics, ranging from 0 (no recovery) to 1 (full recovery).";
 
-        public MarketResilienceStudy()
+        public MarketResilienceStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
@@ -325,26 +325,6 @@ namespace VisualHFT.Studies
                 AggregationLevel = AggregationLevel.Ms500
             };
             SaveToUserSettings(_settings);
-        }
-        public override object GetUISettings()
-        {
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            //viewModel.SelectedSymbol = _settings.Symbol;
-            //viewModel.SelectedProviderID = _settings.Provider.ProviderID;
-            //viewModel.AggregationLevelSelection = _settings.AggregationLevel;
-
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //_settings.Symbol = viewModel.SelectedSymbol;
-                //_settings.Provider = viewModel.SelectedProvider;
-                //_settings.AggregationLevel = viewModel.AggregationLevelSelection;
-
-                //SaveSettings();
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
         }
     }
 }

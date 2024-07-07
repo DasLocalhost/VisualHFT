@@ -14,9 +14,11 @@ using System.Windows.Controls;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.PluginManager;
 using VisualHFT.Commons.Studies;
+using VisualHFT.Commons.WPF.ViewModel;
 using VisualHFT.DataRetriever;
 using VisualHFT.UserSettings;
 using VisualHFT.ViewModel;
+using VisualHFT.Commons.WPF.Helper;
 
 namespace VisualHFT.PluginManager
 {
@@ -28,6 +30,7 @@ namespace VisualHFT.PluginManager
         private object _locker = new object();
 
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly ISettingsManager _settingsManager;
 
         #endregion
 
@@ -38,30 +41,29 @@ namespace VisualHFT.PluginManager
 
         #endregion
 
-        public static PluginManager? Instance { get; private set; } = null;
+        //public static PluginManager? Instance { get; private set; } = null;
 
-        public static void Init()
+        public PluginManager(ISettingsManager settingsManager)
+        {
+            _settingsManager = settingsManager;
+        }
+
+        public void Initialize()
         {
             try
             {
-                // TODO : replace with custom exception
-                if (Instance != null)
-                    throw new Exception();
-
-                Instance = new PluginManager();
-
-                Instance.AllPluginsReloaded = false;
-                Instance.LoadPlugins();
-                Instance.StartPlugins();
-                Instance.AllPluginsReloaded = true;
+                AllPluginsReloaded = false;
+                LoadPlugins();
+                StartPlugins();
+                AllPluginsReloaded = true;
             }
             catch (Exception ex)
             {
-                // TODO : add logs here
+                log.Error("Plugins: Initialization failed.", ex);
             }
         }
 
-        public void LoadPlugins()
+        private void LoadPlugins()
         {
             // 1. By default load all dll's in current Folder. 
             var pluginsDirectory = AppDomain.CurrentDomain.BaseDirectory; // This gets the directory where your WPF app is running
@@ -76,7 +78,7 @@ namespace VisualHFT.PluginManager
 
         }
 
-        public void StartPlugins()
+        private void StartPlugins()
         {
             lock (_locker)
             {
@@ -124,6 +126,7 @@ namespace VisualHFT.PluginManager
                 throw;
             }
         }
+
         public void StopPlugin(IPlugin plugin)
         {
             try
@@ -142,39 +145,19 @@ namespace VisualHFT.PluginManager
             }
         }
 
+        // TODO : probably could be simplified? we can raise a Settings UI for the plugin without using a plugin manager, from vm directly
         public void SettingPlugin(IPlugin plugin)
         {
-            UserControl _ucSettings = null;
+            if (plugin == null)
+                return;
+
             try
             {
-                if (plugin != null)
-                {
-                    var formSettings = new View.PluginSettings();
-                    plugin.CloseSettingWindow = () =>
-                    {
-                        formSettings.Close();
-                    };
-
-                    _ucSettings = plugin.GetUISettings() as UserControl;
-                    if (_ucSettings == null)
-                    {
-                        plugin.CloseSettingWindow = null;
-                        formSettings = null;
-                        return;
-                    }
-                    formSettings.MainGrid.Children.Add(_ucSettings);
-                    formSettings.Title = $"{plugin.Name} Settings";
-                    formSettings.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
-                    formSettings.Topmost = true;
-                    formSettings.ShowInTaskbar = false;
-                    formSettings.ShowDialog();
-                }
-
+                UIHelper.ShowCompactSettings(plugin);
             }
             catch (Exception ex)
             {
-
-                throw;
+                log.Error($"Plugins: Failed to open modal settings view for [{plugin.Name}] plugin", ex);
             }
         }
 
@@ -201,7 +184,7 @@ namespace VisualHFT.PluginManager
                     {
                         if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(IPlugin)))
                         {
-                            var plugin = Activator.CreateInstance(type) as IPlugin;
+                            var plugin = Activator.CreateInstance(type, _settingsManager) as IPlugin;
                             if (string.IsNullOrEmpty(plugin.Name))
                                 continue;
 
@@ -232,6 +215,32 @@ namespace VisualHFT.PluginManager
                 //LOG error
                 log.Error(e.PluginName, e.Exception);
             }
+        }
+
+        public string? GetPluginName(string? id)
+        {
+            if (id == null)
+                return null;
+
+            var plugin = AllPlugins.FirstOrDefault(_ => _.GetPluginUniqueID() == id);
+
+            if (plugin == null)
+                return null;
+
+            return plugin.Name;
+        }
+
+        public bool? IsPluginStudy(string? id)
+        {
+            if (id == null)
+                return null;
+
+            var plugin = AllPlugins.FirstOrDefault(_ => _.GetPluginUniqueID() == id);
+
+            if (plugin == null)
+                return null;
+
+            return plugin is IStudy;
         }
     }
 }

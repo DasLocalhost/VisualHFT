@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VisualHFT.PluginManager;
+using VisualHFT.UserSettings;
 using VisualHFT.ViewModel;
 
-namespace VisualHFT.UserSettings
+namespace VisualHFT.Helpers
 {
-    public static class SettingsManagerExtension
+    public static class UIHelper
     {
-        public static void ShowMainSettings(this SettingsManager settingsManager)
+        public static void ShowMainSettings(ISettingsManager settingsManager)
         {
-            var vm = new vmUserSettings();
+            var vm = new vmUserSettings(settingsManager);
             var form = new View.UserSettings();
 
             form.DataContext = vm;

@@ -16,21 +16,25 @@
 		<Compile Remove="VisualHFT.Commons.WPF\**" />
 		<Compile Remove="VisualHFT.Commons\**" />
 		<Compile Remove="VisualHFT.Plugins\**" />
+		<Compile Remove="VisualHFT.Test\**" />
 		<EmbeddedResource Remove="demoTradingCore\**" />
 		<EmbeddedResource Remove="packages\**" />
 		<EmbeddedResource Remove="VisualHFT.Commons.WPF\**" />
 		<EmbeddedResource Remove="VisualHFT.Commons\**" />
 		<EmbeddedResource Remove="VisualHFT.Plugins\**" />
+		<EmbeddedResource Remove="VisualHFT.Test\**" />
 		<None Remove="demoTradingCore\**" />
 		<None Remove="packages\**" />
 		<None Remove="VisualHFT.Commons.WPF\**" />
 		<None Remove="VisualHFT.Commons\**" />
 		<None Remove="VisualHFT.Plugins\**" />
+		<None Remove="VisualHFT.Test\**" />
 		<Page Remove="demoTradingCore\**" />
 		<Page Remove="packages\**" />
 		<Page Remove="VisualHFT.Commons.WPF\**" />
 		<Page Remove="VisualHFT.Commons\**" />
 		<Page Remove="VisualHFT.Plugins\**" />
+		<Page Remove="VisualHFT.Test\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -72,6 +76,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Autofac" Version="8.0.0" />
 		<PackageReference Include="Confluent.Kafka" Version="2.2.0" />
 		<PackageReference Include="EntityFramework" Version="6.4.4" />
 		<PackageReference Include="Fody" Version="6.8.0">

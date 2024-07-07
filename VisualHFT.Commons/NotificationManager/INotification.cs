@@ -25,6 +25,11 @@ namespace VisualHFT.Commons.NotificationManager
         public string PluginId { get; set; }
 
         /// <summary>
+        /// Value related to the current notification. Could represent any value raising from the Plugin.
+        /// </summary>
+        public double Value { get; set; }
+
+        /// <summary>
         /// Level of priority for notification.
         /// </summary>
         public NotificationLevel Level { get; set; }

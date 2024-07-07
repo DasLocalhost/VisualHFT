@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.API.Slack;
 using VisualHFT.Commons.API.Twitter;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Toast;
-using VisualHFT.NotificationManager.Zapier;
-using VisualHFT.PluginManager;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Twitter
+namespace VisualHFT.Notifications.Twitter
 {
     /// <summary>
     /// Notifications logic for Twitter notifications.
@@ -34,10 +24,12 @@ namespace VisualHFT.NotificationManager.Twitter
 
         public override TwitterNotificationSetting? Settings => _settings as TwitterNotificationSetting;
 
-        public override void Init(List<IPlugin> plugins)
+        public override void Initialize()
         {
             // Code to init a behaviour
-            base.Init(plugins);
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
 
             SetUpConnection();
@@ -45,19 +37,19 @@ namespace VisualHFT.NotificationManager.Twitter
 
         public override void Send(INotification notification)
         {
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior received a new notification.");
+            log.Debug($"Notifications: [{TargetName}] behavior received a new notification.");
 
             // If settings are not init yet - skip the notification
             if (_settings == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] is not initialized properly. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] is not initialized properly. Received notification will be skipped.");
                 return;
             }
 
             var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as TwitterPluginNotificationSetting;
             if (pluginSetting == null)
             {
-                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
+                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{TargetName}] behavior. Received notification will be skipped.");
                 return;
             }
 
@@ -77,7 +69,7 @@ namespace VisualHFT.NotificationManager.Twitter
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new TwitterNotificationSetting(GetUniqueId(), NotificationTargetName);
+            var settings = new TwitterNotificationSetting(GetUniqueId(), TargetName);
 
             SaveToUserSettings(settings);
 
@@ -86,9 +78,10 @@ namespace VisualHFT.NotificationManager.Twitter
 
         #endregion
 
-        public TwitterNotificationBehaviour()
+        public TwitterNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Twitter Notifications";
+            TargetName = "Twitter Notifications";
+            ShortTargetName = "Twitter";
             Version = "1.0.0.0";
         }
 
@@ -98,9 +91,7 @@ namespace VisualHFT.NotificationManager.Twitter
         /// <exception cref="Exception"></exception>
         private void SetUpConnection()
         {
-            // TODO : fix exception here.
-            if (_settings is not TwitterNotificationSetting twitterSettings)
-                throw new Exception();
+
         }
 
         /// <summary>
@@ -112,22 +103,22 @@ namespace VisualHFT.NotificationManager.Twitter
         {
             if (pluginSetting.AccessToken == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty access token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty access token for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.AccessSecret == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty access secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty access secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.ApiToken == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty api token name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty api token name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
             if (pluginSetting.ApiSecret == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] has an empty api secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] has an empty api secret name for [{textNotification.PluginName}] plugin. Received notification will be skipped.");
                 return;
             };
 

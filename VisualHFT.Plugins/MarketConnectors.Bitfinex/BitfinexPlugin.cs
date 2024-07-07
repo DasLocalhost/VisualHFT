@@ -57,7 +57,7 @@ namespace MarketConnectors.Bitfinex
         public override ISetting Settings { get => _settings; set => _settings = (PlugInSettings)value; }
         public override Action CloseSettingWindow { get; set; }
 
-        public BitfinexPlugin()
+        public BitfinexPlugin(ISettingsManager settingsManager) : base(settingsManager)
         {
             _socketClient = new BitfinexSocketClient(options =>
             {
@@ -554,31 +554,6 @@ namespace MarketConnectors.Bitfinex
                 Symbols = new List<string>() { "tBTCUSD(BTC/USD)", "tETHUSD(ETH/USD)" } // Add more symbols as needed
             };
             SaveToUserSettings(_settings);
-        }
-        public override object GetUISettings()
-        {
-            // TODO : remake with a new structure
-
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //_settings.ApiSecret = viewModel.ApiSecret;
-                //_settings.ApiKey = viewModel.ApiKey;
-                //_settings.DepthLevels = viewModel.DepthLevels;
-                //_settings.Provider = new VisualHFT.Model.Provider() { ProviderID = viewModel.ProviderId, ProviderName = viewModel.ProviderName };
-                //_settings.Symbols = viewModel.Symbols;
-                //SaveSettings();
-                //ParseSymbols(string.Join(',', _settings.Symbols.ToArray()));
-
-                // Start the HandleConnectionLost task without awaiting it
-                //run this because it will allow to reconnect with the new values
-                Task.Run(HandleConnectionLost);
-
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
         }
     }
 }

@@ -63,7 +63,7 @@ namespace VisualHFT.Studies
 
         public decimal BucketVolumeSize => _bucketVolumeSize;
 
-        public VPINStudy()
+        public VPINStudy(ISettingsManager settingsManager) : base(settingsManager)
         {
             HelperOrderBook.Instance.Subscribe(LIMITORDERBOOK_OnDataReceived);
             HelperTrade.Instance.Subscribe(TRADES_OnDataReceived);
@@ -146,12 +146,12 @@ namespace VisualHFT.Studies
             if (isNewBucket)
             {
                 valueColor = "Green";
-                // Check against threshold and trigger alert
-                if (vpin > VPIN_THRESHOLD)
-                    Notify("New VPin!", $"{vpin} | {VPIN_THRESHOLD}");
                 //OnAlertTriggered?.Invoke(this, vpin);
                 ResetBucket();
             }
+            // Check against threshold and trigger alert
+            //if (vpin > VPIN_THRESHOLD)
+            Notify("New VPin!", $"{vpin} | {VPIN_THRESHOLD}", (double)vpin);
             // Add to rolling window and remove oldest if size exceeded
             var newItem = new BaseStudyModel();
             newItem.Value = vpin;
@@ -217,44 +217,16 @@ namespace VisualHFT.Studies
             };
             SaveToUserSettings(_settings);
         }
-        public override object GetUISettings()
-        {
-            PluginCompactSettingsView view = new PluginCompactSettingsView();
-            PluginSettingsViewModel viewModel = new PluginSettingsViewModel(_settings);
-            //viewModel.BucketVolumeSize = _settings.BucketVolSize;
-            //viewModel.SelectedSymbol = _settings.Symbol;
-            //viewModel.SelectedProviderID = _settings.Provider.ProviderID;
-            //viewModel.AggregationLevelSelection = _settings.AggregationLevel;
 
-            viewModel.UpdateSettingsFromUI = () =>
-            {
-                //    _settings.BucketVolSize = viewModel.BucketVolumeSize;
-                //    _settings.Symbol = viewModel.SelectedSymbol;
-                //    _settings.Provider = viewModel.SelectedProvider;
-                //    _settings.AggregationLevel = viewModel.AggregationLevelSelection;
-
-                //    SaveSettings();
-
-                // Start the Reconnection 
-                //  It will allow to reload with the new values
-                Task.Run(() =>
-                {
-                    ResetBucket();
-                });
-            };
-            // Display the view, perhaps in a dialog or a new window.
-            view.DataContext = viewModel;
-            return view;
-        }
-
+        // TODO : change documentation
         /// <summary>
         /// Example how to send notifications
         /// </summary>
         /// <param name="subject">Notification's title</param>
         /// <param name="value">Notification's text</param>
-        private void Notify(string subject, object value)
+        private void Notify(string subject, object text, double value)
         {
-            var notification = new TextNotification(subject, $"{value}")
+            var notification = new TextNotification(subject, $"{text}", value)
                 .FromPlugin("VPINStudy", GetPluginUniqueID())
                 .SetConcatenation(Concatenation.Simple);
 

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -22,9 +23,10 @@ namespace VisualHFT.UserSettings
 
         public event EventHandler<IBaseSettings>? SettingsChanged;
 
+        public event EventHandler? OnSave;
+
         public UserSettings()
         {
-            //Settings = new Dictionary<SettingKey, object>();
             ComponentSettings = new HashSet<SettingsGroup>();
         }
 
@@ -38,7 +40,6 @@ namespace VisualHFT.UserSettings
         {
             var group = ComponentSettings.FirstOrDefault(_ => _.SettingKey == key);
 
-            // TODO : add callback to logs
             if (group == null)
             {
                 log.Warn($"Settings: Setting group with [{key}] key is not found in User Settings.");
@@ -101,7 +102,8 @@ namespace VisualHFT.UserSettings
         public void SaveSetting(IBaseSettings setting)
         {
             RaiseSettingsChanged(setting);
-            SettingsManager.Instance.Save();
+            OnSave?.Invoke(this, EventArgs.Empty);
+            //_settingsManager.Save();
         }
 
         /// <summary>
@@ -228,9 +230,20 @@ namespace VisualHFT.UserSettings
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            var settingsDict = serializer.Deserialize<UserSettingsDictionary>(reader);
+            try
+            {
+                var settingsDict = serializer.Deserialize<UserSettingsDictionary>(reader);
 
-            return UserSettingsDictionary.To(settingsDict);
+                if (settingsDict == null || settingsDict.ComponentSettings.Count == 0)
+                    return null;
+
+                return UserSettingsDictionary.To(settingsDict);
+            }
+            catch
+            {
+                // TODO : add logs here
+                return null;
+            }
         }
 
         public override bool CanConvert(Type objectType)
@@ -319,6 +332,12 @@ namespace VisualHFT.UserSettings
                             continue;
 
                         containers.Add(new SettingContainer(container.Key, setting));
+
+                        if (container.Value is IBaseSettings settings)
+                        {
+                            settings.SettingKey = key;
+                            settings.SettingId = container.Key;
+                        }
 
                         if (container.Value is BaseNotificationSettings notificationSetting)
                         {

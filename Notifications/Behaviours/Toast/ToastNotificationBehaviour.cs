@@ -1,22 +1,11 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using VisualHFT.Commons.NotificationManager;
 using VisualHFT.Commons.NotificationManager.Notifications;
-using VisualHFT.NotificationManager.Slack;
-using VisualHFT.NotificationManager.Twitter;
-using VisualHFT.PluginManager;
+using VisualHFT.Commons.PluginManager;
 using VisualHFT.UserSettings;
 
-namespace VisualHFT.NotificationManager.Toast
+namespace VisualHFT.Notifications.Toast
 {
     /// <summary>
     /// Notifications logic for Windows toast notifications.
@@ -30,9 +19,10 @@ namespace VisualHFT.NotificationManager.Toast
 
         #endregion
 
-        public ToastNotificationBehaviour()
+        public ToastNotificationBehaviour(ISettingsManager settingsManager, IPluginManager pluginManager) : base(settingsManager, pluginManager)
         {
-            NotificationTargetName = "Windows 10 Toast Notifications";
+            TargetName = "Windows 10 Toast Notifications";
+            ShortTargetName = "Win Toast";
             Version = "1.0.0.0";
         }
 
@@ -40,27 +30,30 @@ namespace VisualHFT.NotificationManager.Toast
 
         public override ToastNotificationSetting? Settings => _settings as ToastNotificationSetting;
 
-        public override void Init(List<IPlugin> plugins)
+        public override void Initialize()
         {
-            base.Init(plugins);
+            // Code to init a behaviour
+            base.Initialize();
+
+            var plugins = _pluginManager.AllPlugins;
             _settings?.InitPluginRelatedSettings(plugins);
         }
 
         public override void Send(INotification notification)
         {
-            log.Debug($"Notifications: [{NotificationTargetName}] behavior received a new notification.");
+            log.Debug($"Notifications: [{TargetName}] behavior received a new notification.");
 
             // If settings are not init yet - skip the notification
             if (_settings == null)
             {
-                log.Warn($"Notifications: [{NotificationTargetName}] is not initialized properly. Received notification will be skipped.");
+                log.Warn($"Notifications: [{TargetName}] is not initialized properly. Received notification will be skipped.");
                 return;
             }
 
             var pluginSetting = _settings.GetPluginSettings(notification.PluginId) as ToastPluginNotificationSetting;
             if (pluginSetting == null)
             {
-                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{NotificationTargetName}] behavior. Received notification will be skipped.");
+                log.Warn($"Notifications: Notification settings for [{notification.PluginName}] not found for [{TargetName}] behavior. Received notification will be skipped.");
                 return;
             }
 
@@ -81,7 +74,7 @@ namespace VisualHFT.NotificationManager.Toast
 
         protected override BaseNotificationSettings InitializeDefaultSettings()
         {
-            var settings = new ToastNotificationSetting(GetUniqueId(), NotificationTargetName)
+            var settings = new ToastNotificationSetting(GetUniqueId(), TargetName)
             {
                 Threshold = 5,
                 UpdateTime = 100
@@ -107,7 +100,7 @@ namespace VisualHFT.NotificationManager.Toast
             if (useTime)
                 builder.AddText($"Time: {DateTime.Now}");
 
-            // TODO : test if this directive wors correctly on previous windows versions
+            // TODO : test if this directive works correctly on previous windows versions
 #if WINDOWS10_0_17763_0_OR_GREATER
             builder.Show();
 #else

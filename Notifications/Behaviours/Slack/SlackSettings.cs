@@ -1,15 +1,11 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualHFT.Commons.WPF.ViewModel;
+using VisualHFT.Commons.NotificationManager;
+using VisualHFT.Commons.WPF.ViewMapping;
 using VisualHFT.UserSettings;
 using VisualHFT.View.Settings;
 using VisualHFT.ViewModel.Settings;
 
-namespace VisualHFT.NotificationManager.Slack
+namespace VisualHFT.Notifications.Slack
 {
     /// <summary>
     /// Global settings for Slack notifications. 
@@ -33,7 +29,11 @@ namespace VisualHFT.NotificationManager.Slack
                 IsEnabled = false,
                 Channel = string.Empty,
                 Token = string.Empty,
-                PluginId = pluginId
+                PluginId = pluginId,
+                AboveThreshold = 0,
+                AboveThresholdEnabled = false,
+                BelowThreshold = 0,
+                BelowThresholdEnabled = false
             };
         }
 
@@ -46,6 +46,16 @@ namespace VisualHFT.NotificationManager.Slack
     [DefaultSettingsView(typeof(SlackPluginSettingsViewModel), typeof(SlackPluginSettingsView))]
     public class SlackPluginNotificationSetting : IPluginNotificationSettings
     {
+        #region IBaseSettings implementation
+
+        [JsonIgnore]
+        public string? SettingId { get; set; }
+
+        [JsonIgnore]
+        public SettingKey? SettingKey { get; set; }
+
+        #endregion
+
         /// <summary>
         /// Id of Slack channel to send notifications.
         /// </summary>
@@ -58,6 +68,10 @@ namespace VisualHFT.NotificationManager.Slack
         #region IPluginNotificationSettings implementation
 
         public bool IsEnabled { get; set; }
+        public double? AboveThreshold { get; set; }
+        public bool AboveThresholdEnabled { get; set; }
+        public double? BelowThreshold { get; set; }
+        public bool BelowThresholdEnabled { get; set; }
 
         [JsonIgnore]
         public string? PluginId { get; set; }

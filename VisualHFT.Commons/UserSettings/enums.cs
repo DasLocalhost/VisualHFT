@@ -20,7 +20,9 @@ namespace VisualHFT.UserSettings
         [Description("Plugin")]
         PLUGIN,
         [Description("Notification")]
-        NOTIFICATION
+        NOTIFICATION,
+        [Description("Test")]
+        TEST
         // Add more settings here
     }
 
